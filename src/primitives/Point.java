@@ -10,7 +10,9 @@ package primitives;
  */
 
 public class Point {
+	/** Static field for the origin point (0,0,0) */
 	public static final Point ZERO = new Point(Double3.ZERO);
+	/** Triplet of coordinate values */
 	protected final Double3 _xyz;
 	
 	/**
@@ -35,45 +37,55 @@ public class Point {
 	 * @param other
 	 * @return -return vector
 	 */
-	Vector substract(Point other) {
-		
+	Vector subtract(Point other) {
+		return new Vector(_xyz.subtract(other._xyz));
 	}
+	
 	/**
 	 * calculate new position for the point
 	 * @param vector
 	 * @return the new point after moving with vector
 	 */
 	 Point add(Vector vector) {
-		 
+		 return new Point(_xyz.add(vector._xyz));
 	 }
+	 
 	 /**
 	  * calculate squared distance between current and other points
+	  * Formula: (x2-x1)^2 + (y2-y1)^2 + (z2-z1)^2
 	  * @param other
-	  * @return- squared distance between current and other points
+	  * @return- squared distance between the points
 	  */
 	double distanceSquared(Point other) {
-		
+		double dx = _xyz._d1() - other._xyz._d1();
+        double dy = _xyz._d2() - other._xyz._d2();
+        double dz = _xyz._d3() - other._xyz._d3();
+        return dx * dx + dy * dy + dz * dz;
 	}
+	
 	/**
 	 * calculate distance between current and other points
-	 * <p>based on distanceSquared func<p>
+	 * based on distanceSquared function
 	 * @param other
 	 * @return - distance between current and other points
 	 */
 	double distance(Point other) {
-		
+		return Math.sqrt(distanceSquared(other))
 	}
+	
 	@Override
 	public String toString() { return "" + _xyz; }
+	
 	@Override
 	public boolean equals(Object obj) {
 	if (this == obj) return true;
 	if (obj == null || getClass() != obj.getClass()) return false;
 	return _xyz.equals(((Point) obj)._xyz);
 	}
+	
 	@Override
 	public int hashCode() {
-	return _xyz.hashCode());
+	return _xyz.hashCode();
 	}
 
 }
