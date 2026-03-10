@@ -70,7 +70,7 @@ public class Point {
 	 * @return - distance between current and other points
 	 */
 	double distance(Point other) {
-		return Math.sqrt(distanceSquared(other))
+		return Math.sqrt(distanceSquared(other));
 	}
 	
 	@Override
