@@ -1,7 +1,7 @@
 
 package geometries.api;
 
-import java.util.Vector;
+import primitives.Vector;
 
 import primitives.Point;
 
@@ -20,5 +20,7 @@ public abstract class Geometry {
      * @return The normalized normal vector.
      */
 	public abstract Vector getNormal(Point point);
+
+
 
 }

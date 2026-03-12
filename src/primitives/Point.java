@@ -37,7 +37,7 @@ public class Point {
 	 * @param other
 	 * @return -return vector
 	 */
-	Vector subtract(Point other) {
+	public Vector subtract(Point other) {
 		return new Vector(_xyz.subtract(other._xyz));
 	}
 	
@@ -46,7 +46,7 @@ public class Point {
 	 * @param vector
 	 * @return the new point after moving with vector
 	 */
-	 Point add(Vector vector) {
+	public Point add(Vector vector) {
 		 return new Point(_xyz.add(vector._xyz));
 	 }
 	 
@@ -56,7 +56,7 @@ public class Point {
 	  * @param other
 	  * @return- squared distance between the points
 	  */
-	double distanceSquared(Point other) {
+	public double distanceSquared(Point other) {
 		double dx = _xyz._d1() - other._xyz._d1();
         double dy = _xyz._d2() - other._xyz._d2();
         double dz = _xyz._d3() - other._xyz._d3();
@@ -69,7 +69,7 @@ public class Point {
 	 * @param other
 	 * @return - distance between current and other points
 	 */
-	double distance(Point other) {
+	public double distance(Point other) {
 		return Math.sqrt(distanceSquared(other));
 	}
 	
