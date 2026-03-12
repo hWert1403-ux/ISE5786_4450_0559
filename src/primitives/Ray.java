@@ -9,9 +9,9 @@ import java.util.Objects;
  */
 public final class Ray {
 	/** The origin point of the ray */
-	Point _origin;
+	private final Point _origin;
 	/** The normalized direction vector of the ray */
-	Vector _direction;
+	private final Vector _direction;
 	
 	/**
      * Constructor to initialize a Ray with an origin point and a direction vector.
