@@ -80,4 +80,9 @@ public class Polygon extends Geometry {
 	public Vector getNormal(Point point) {
 		return _plane.getNormal(point);
 	}
+	
+	@Override
+	public String toString() {
+	    return "Polygon: vertices=" + _vertices;
+	}
 }
