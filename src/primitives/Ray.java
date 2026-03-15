@@ -34,7 +34,15 @@ public final class Ray {
 	public Vector direction() {
 		return _direction;
 	}
-
+	/**
+	 * Getter for the origin vector of the ray.
+	 * This matches the requirement of the sanity test.
+	 * * @return the origin point
+	 */
+	public Point origin() {
+		return _origin;
+	}
+	
 	@Override
 	public String toString() {
 	    return "Ray: origin=" + _origin + ", direction=" + _direction;
