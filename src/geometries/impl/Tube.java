@@ -25,7 +25,18 @@ public class Tube extends RadialGeometry {
 
 	@Override
 	public Vector getNormal(Point point) {
-		return null; // Implementation will be added late
+		// 1. Find the projection of (P - P0) onto the axis ray direction v
+		// t = v * (P - P0)
+		Vector v = _axis.direction();
+		Point p0 = _axis.origin();
+
+		double t = v.dotProduct(point.subtract(p0));
+
+		// 2. The projection point on the axis is O' = P0 + t*v
+		Point oDoublePrime = p0.add(v.scale(t));
+
+		// 3. The normal is (P - O')
+		return point.subtract(oDoublePrime).normalize();
 	}
 
 	@Override
