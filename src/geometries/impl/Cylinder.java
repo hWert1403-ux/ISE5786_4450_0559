@@ -31,10 +31,25 @@ public class Cylinder extends Tube {
 		this._height = height;
 	}
 
+	/**
+	 * Calculates the normal vector to the cylinder's surface at a given point. The
+	 * normal depends on whether the point is on the side shell, the bottom base, or
+	 * the top base. * @param point The point on the cylinder's surface to find the
+	 * normal for.
+	 * 
+	 * @return A normalized vector perpendicular to the surface at the given point.
+	 * @throws IllegalArgumentException If the point is not on the cylinder's
+	 *                                  surface.
+	 */
 	@Override
 	public Vector getNormal(Point point) {
 		Point p0 = _axis.origin();
 		Vector v = _axis.direction();
+
+		// Check if the point is exactly at the center of the bottom base (Ray head)
+		// to avoid a zero vector during subtraction.
+		if (point.equals(p0))
+			return v.scale(-1);
 
 		// t = v * (point - p0)
 		double t = v.dotProduct(point.subtract(p0));

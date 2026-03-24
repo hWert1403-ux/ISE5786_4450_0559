@@ -90,7 +90,7 @@ class PointTests {
 	void testDistance() {
 		// ============ Equivalence Partitions Tests ==============
 		// TC01: Simple distance
-		assertEquals(14d, P1.distance(Pzero), DELTA, ERR_DISTANCE);
+		assertEquals(Math.sqrt(14), P1.distance(Pzero), DELTA, ERR_DISTANCE);
 
 		// =============== Boundary Values Tests ==================
 		// TC11: distance to itself

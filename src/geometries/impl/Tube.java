@@ -1,8 +1,10 @@
 package geometries.impl;
 
+import static primitives.Util.isZero;
+
 import primitives.Point;
 import primitives.Ray;
-import primitives.Vector;
+import primitives.Vector;;
 
 /**
  * Class Tube represents a semi-infinite tube in 3D space. The tube is defined
@@ -31,6 +33,9 @@ public class Tube extends RadialGeometry {
 		Point p0 = _axis.origin();
 
 		double t = v.dotProduct(point.subtract(p0));
+
+		if (isZero(t))
+			return point.subtract(p0).normalize();
 
 		// 2. The projection point on the axis is O' = P0 + t*v
 		Point oDoublePrime = p0.add(v.scale(t));

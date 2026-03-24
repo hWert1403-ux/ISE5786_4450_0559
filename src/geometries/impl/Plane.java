@@ -23,9 +23,23 @@ public class Plane extends Geometry {
 	 * @param p2 second point
 	 * @param p3 third point
 	 */
+	// public Plane(Point p1, Point p2, Point p3) {
+	// _point = p1;
+	// _normal = null; // Placeholder as per instructions for this stage
+	// }
 	public Plane(Point p1, Point p2, Point p3) {
 		_point = p1;
-		_normal = null; // Placeholder as per instructions for this stage
+
+		// 1. Calculating two vectors on the plane that originate from the same point
+		Vector v1 = p2.subtract(p1);
+		Vector v2 = p3.subtract(p1);
+
+		// 2. Performing vector multiplication to obtain a vector perpendicular to the
+		// plane
+		Vector n = v1.crossProduct(v2);
+
+		// 3. Normalize the vector so that its length is
+		_normal = n.normalize();
 	}
 
 	/**
