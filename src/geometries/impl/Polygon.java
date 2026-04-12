@@ -5,7 +5,9 @@ import static primitives.Util.isZero;
 import java.util.List;
 
 import geometries.api.Geometry;
-import primitives.*;
+import primitives.Point;
+import primitives.Ray;
+import primitives.Vector;
 
 /**
  * Represents a convex polygon in a 3D Cartesian coordinate system.
@@ -80,9 +82,15 @@ public class Polygon extends Geometry {
 	public Vector getNormal(Point point) {
 		return _plane.getNormal(point);
 	}
-	
+
 	@Override
 	public String toString() {
-	    return "Polygon: vertices=" + _vertices;
+		return "Polygon: vertices=" + _vertices;
+	}
+
+	@Override
+	public List<Point> findIntersections(Ray ray) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
