@@ -56,4 +56,31 @@ class RayTests {
 		Vector normalizedV1 = V1.normalize();
 		assertEquals(normalizedV1, direction, ERR_CONSTRUCTOR);
 	}
+
+	// ============ Refactoring: getPoint ============
+
+	/** Error message for wrong point calculation */
+	private static final String ERR_WRONG_POINT = "ERROR: getPoint() calculated wrong point";
+
+	/**
+	 * Test method for {@link primitives.Ray#getPoint(double)}.
+	 */
+	@Test
+	void testGetPoint() {
+		Ray ray = new Ray(new Point(1, 1, 1), new Vector(1, 0, 0));
+
+		// ============ Equivalence Partitions Tests ==============
+
+		// EP01: t is positive (t > 0)
+		assertEquals(new Point(2, 1, 1), ray.getPoint(1), ERR_WRONG_POINT);
+
+		// EP02: t is negative (t < 0)
+		assertEquals(new Point(0, 1, 1), ray.getPoint(-1), ERR_WRONG_POINT);
+
+		// =============== Boundary Values Tests ==================
+
+		// BV01: t is zero (t = 0)
+		assertEquals(new Point(1, 1, 1), ray.getPoint(0), ERR_WRONG_POINT);
+	}
+
 }

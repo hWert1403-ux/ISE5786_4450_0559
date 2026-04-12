@@ -40,7 +40,8 @@ public class Tube extends RadialGeometry {
 			return point.subtract(p0).normalize();
 
 		// 2. The projection point on the axis is O' = P0 + t*v
-		Point oDoublePrime = p0.add(v.scale(t));
+		// REFACROTING: Use _axis.getPoint(t) instead of p0.add(v.scale(t));
+		Point oDoublePrime = _axis.getPoint(t);
 
 		// 3. The normal is (P - O')
 		return point.subtract(oDoublePrime).normalize();

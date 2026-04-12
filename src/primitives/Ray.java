@@ -1,5 +1,7 @@
 package primitives;
 
+import static primitives.Util.isZero;
+
 import java.util.Objects;
 
 /**
@@ -63,15 +65,21 @@ public final class Ray {
 	}
 
 	/**
-	 * Get a point on the ray at a certain distance
+	 * Calculates a point on the line of the ray at distance t from the origin.
 	 * 
-	 * @param t distance from the ray head to the point
-	 * @return the point on the ray
+	 * @param t distance from the ray origin (can be positive, negative, or zero)
+	 * @return the calculated point
 	 */
 	public Point getPoint(double t) {
-		// P = P0 + t * v
-		// We use isZero to ensure that if t is very close to 0, we just return the
-		// origin
-		return Util.isZero(t) ? _origin : _origin.add(_direction.scale(t));
+		// Using try-catch to handle the zero vector safely
+		if (isZero(t)) {
+			return _origin;
+		}
+		try {
+			return _origin.add(_direction.scale(t));
+		} catch (IllegalArgumentException ignore) {
+			// Safety measure: if scaling results in a zero vector due to precision
+			return _origin;
+		}
 	}
 }

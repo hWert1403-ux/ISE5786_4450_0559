@@ -65,7 +65,9 @@ public class Cylinder extends Tube {
 		}
 
 		// Otherwise, it's on the side shell (same as Tube)
-		Point o = p0.add(v.scale(t));
+		// REFACTORING: Use getPoint(t) instead of p0.add(v.scale(t))
+		Point o = _axis.getPoint(t);
+
 		return point.subtract(o).normalize();
 	}
 
