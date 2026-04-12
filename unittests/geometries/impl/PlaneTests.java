@@ -142,25 +142,21 @@ class PlaneTests {
 		// ============ Equivalence Partitions Tests ==============
 
 		// EP01: Ray intersects the plane (1 point)
-		// Ray starts at (0,0,1) and goes towards the plane
 		var resultEP01 = PLANE.findIntersections(new Ray(new Point(0, 0, 1), new Vector(1, 1, -1)));
 		assertNotNull(resultEP01, ERR_SHOULD_NOT_BE_NULL);
 		assertEquals(1, resultEP01.size(), ERR_INTERSECTIONS_NUM);
 
 		// EP02: Ray does not intersect the plane (0 points)
-		// Ray starts at (0,0,1) and goes away from the plane
 		assertNull(PLANE.findIntersections(new Ray(new Point(0, 0, 1), new Vector(1, 1, 1))), ERR_SHOULD_BE_NULL);
 
 		// =============== Boundary Values Tests ==================
 
 		// **** Group 1: Ray is parallel to the plane
 		// BV11: Ray included in the plane (0 points)
-		assertNull(PLANE.findIntersections(new Ray(new Point(1, 1, 0), new Vector(1, 0, 0))),
-				"BV11: Ray included in plane should return null");
+		assertNull(PLANE.findIntersections(new Ray(new Point(1, 1, 0), new Vector(1, 0, 0))), ERR_SHOULD_BE_NULL);
 
 		// BV12: Ray parallel to the plane, not included in it (0 points)
-		assertNull(PLANE.findIntersections(new Ray(new Point(1, 1, 1), new Vector(1, 0, 0))),
-				"BV12: Ray parallel to plane (above it) should return null");
+		assertNull(PLANE.findIntersections(new Ray(new Point(1, 1, 1), new Vector(1, 0, 0))), ERR_SHOULD_BE_NULL);
 
 		// **** Group 2: Ray is orthogonal to the plane
 		// BV21: Ray starts before the plane (1 point)
@@ -169,21 +165,16 @@ class PlaneTests {
 		assertEquals(1, resultBV21.size(), ERR_INTERSECTIONS_NUM);
 
 		// BV22: Ray starts at the plane (0 points)
-		assertNull(PLANE.findIntersections(new Ray(new Point(1, 1, 0), new Vector(0, 0, -1))),
-				"BV22: Orthogonal ray starting at plane should return null");
+		assertNull(PLANE.findIntersections(new Ray(new Point(1, 1, 0), new Vector(0, 0, -1))), ERR_SHOULD_BE_NULL);
 
 		// BV23: Ray starts after the plane (0 points)
-		assertNull(PLANE.findIntersections(new Ray(new Point(0, 0, -1), new Vector(0, 0, -1))),
-				"BV23: Orthogonal ray starting after plane should return null");
+		assertNull(PLANE.findIntersections(new Ray(new Point(0, 0, -1), new Vector(0, 0, -1))), ERR_SHOULD_BE_NULL);
 
 		// **** Group 3: Ray is neither orthogonal nor parallel
 		// BV31: Ray starts at the plane (0 points)
-		assertNull(PLANE.findIntersections(new Ray(new Point(1, 1, 0), new Vector(1, 1, 1))),
-				"BV31: Ray starting at plane (diagonal) should return null");
+		assertNull(PLANE.findIntersections(new Ray(new Point(1, 1, 0), new Vector(1, 1, 1))), ERR_SHOULD_BE_NULL);
 
 		// BV32: Ray starts at the reference point of the plane (0 points)
-		// במקום getPoint() השתמשתי בנקודה ששימשה לבניית המישור
-		assertNull(PLANE.findIntersections(new Ray(P_ON_PLANE, new Vector(1, 1, 1))),
-				"BV32: Ray starting at plane's reference point should return null");
+		assertNull(PLANE.findIntersections(new Ray(P_ON_PLANE, new Vector(1, 1, 1))), ERR_SHOULD_BE_NULL);
 	}
 }

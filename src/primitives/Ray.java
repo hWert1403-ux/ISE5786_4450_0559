@@ -25,27 +25,26 @@ public final class Ray {
 		_origin = origin;
 		_direction = direction.normalize();
 	}
-	
+
 	/**
-	 * Getter for the direction vector of the ray.
-	 * This matches the requirement of the sanity test.
-	 * * @return the normalized direction vector
+	 * Getter for the direction vector of the ray. This matches the requirement of
+	 * the sanity test. * @return the normalized direction vector
 	 */
 	public Vector direction() {
 		return _direction;
 	}
+
 	/**
-	 * Getter for the origin vector of the ray.
-	 * This matches the requirement of the sanity test.
-	 * * @return the origin point
+	 * Getter for the origin vector of the ray. This matches the requirement of the
+	 * sanity test. * @return the origin point
 	 */
 	public Point origin() {
 		return _origin;
 	}
-	
+
 	@Override
 	public String toString() {
-	    return "Ray: origin=" + _origin + ", direction=" + _direction;
+		return "Ray: origin=" + _origin + ", direction=" + _direction;
 	}
 
 	@Override
@@ -61,5 +60,18 @@ public final class Ray {
 	@Override
 	public int hashCode() {
 		return Objects.hash(_origin, _direction);
+	}
+
+	/**
+	 * Get a point on the ray at a certain distance
+	 * 
+	 * @param t distance from the ray head to the point
+	 * @return the point on the ray
+	 */
+	public Point getPoint(double t) {
+		// P = P0 + t * v
+		// We use isZero to ensure that if t is very close to 0, we just return the
+		// origin
+		return Util.isZero(t) ? _origin : _origin.add(_direction.scale(t));
 	}
 }
