@@ -61,9 +61,16 @@ class GeometriesTests {
 		assertEquals(1, resultBVA03.size(), ERR_INTERSECTIONS_NUM);
 
 		// BVA04: All geometries are intersected
-		// Ray intersects Sphere (2), Triangle (1), and Plane (1)
-		var resultBVA04 = geometries.findIntersections(new Ray(new Point(1.2, 1.2, -2), new Vector(0, 0, 1)));
+		// STEP 1: Create a local collection where geometries actually overlap
+		// We move the sphere to (1,1,0) so it's directly under the triangle (y=1)
+		Geometries localGeos = new Geometries(new Sphere(new Point(1, 1, 0), 1d), PLANE, TRIANGLE);
+
+		// STEP 2: Use a ray that passes through (1.1, 1.1)
+		// This ray hits the sphere twice, the plane once, and the triangle once.
+		var resultBVA04 = localGeos.findIntersections(new Ray(new Point(1.1, 1.1, -2), new Vector(0, 0, 1)));
+
 		assertNotNull(resultBVA04, ERR_SHOULD_NOT_BE_NULL);
-		assertEquals(4, resultBVA04.size(), "BVA04: " + ERR_INTERSECTIONS_NUM);
+		assertEquals(4, resultBVA04.size(), ERR_INTERSECTIONS_NUM);
+
 	}
 }

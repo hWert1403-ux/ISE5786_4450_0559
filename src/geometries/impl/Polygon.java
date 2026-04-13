@@ -1,6 +1,6 @@
 package geometries.impl;
 
-import static primitives.Util.isZero;
+import static primitives.Util.*;
 
 import java.util.List;
 
@@ -90,7 +90,37 @@ public class Polygon extends Geometry {
 
 	@Override
 	public List<Point> findIntersections(Ray ray) {
-		// TODO Auto-generated method stub
-		return null;
+	    // Step 1: Find intersection with the plane containing the polygon
+	    var planeIntersections = _plane.findIntersections(ray);
+	    if (planeIntersections == null) return null;
+
+	    // Step 2: Check if the intersection point is inside the polygon boundaries
+	    Point p0 = ray.origin();
+	    Vector v = ray.direction();
+	    int size = _vertices.size();
+
+	    // Calculate the first side's sign
+	    // Vectors from the ray head to the triangle vertices
+	    Vector v1 = _vertices.get(size - 1).subtract(p0);
+	    Vector v2 = _vertices.get(0).subtract(p0);
+	    
+	    // Normal to the plane formed by the ray and the first edge
+	    double sign = alignZero(v.dotProduct(v1.crossProduct(v2)));
+	    if (sign == 0) return null; // Point is on an edge/vertex
+
+	    boolean positive = sign > 0;
+
+	    // Iterate through the rest of the edges
+	    for (int i = 0; i < size - 1; ++i) {
+	        v1 = v2;
+	        v2 = _vertices.get(i + 1).subtract(p0);
+	        sign = alignZero(v.dotProduct(v1.crossProduct(v2)));
+	        
+	        // If sign is 0 or different from the first sign, point is outside
+	        if (sign == 0 || (sign > 0) != positive) return null;
+	    }
+
+	    // All signs are the same - point is inside
+	    return planeIntersections;
 	}
 }

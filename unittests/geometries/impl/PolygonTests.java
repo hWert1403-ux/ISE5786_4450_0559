@@ -2,11 +2,14 @@ package geometries.impl;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
 import primitives.Point;
+import primitives.Ray;
 import primitives.Vector;
 
 /**
@@ -108,5 +111,48 @@ class PolygonTests {
 			Vector edge = pts[i].subtract(pts[i == 0 ? pts.length - 1 : i - 1]);
 			assertEquals(0d, result.dotProduct(edge), DELTA, "Polygon normal is not orthogonal to an edge");
 		}
+	}
+
+	// ============ Intersection Tests ============
+
+	// ============ Error Messages Constants ============
+	/** Error message for wrong number of intersection points */
+	private static final String ERR_POINTS_COUNT = "ERROR: Polygon intersection returns wrong number of points";
+	/** Error message when a ray should not intersect the polygon */
+	private static final String ERR_SHOULD_BE_NULL = "ERROR: Ray should not intersect the polygon";
+	/** Error message when a ray should intersect the polygon but returns null */
+	private static final String ERR_SHOULD_NOT_BE_NULL = "ERROR: Ray should intersect the polygon";
+
+	/**
+	 * Test method for
+	 * {@link geometries.impl.Polygon#findIntersections(primitives.Ray)}.
+	 */
+	@Test
+	void testFindIntersections() {
+		Polygon poly = new Polygon(new Point(0, 0, 1), new Point(2, 0, 1), new Point(2, 2, 1), new Point(0, 2, 1));
+
+		// ============ Equivalence Partitions Tests ==============
+
+		// TC01: Ray intersects the polygon inside (1 point)
+		var resultTC01 = poly.findIntersections(new Ray(new Point(1, 1, -1), new Vector(0, 0, 1)));
+		assertNotNull(resultTC01, ERR_SHOULD_NOT_BE_NULL);
+		assertEquals(1, resultTC01.size(), ERR_POINTS_COUNT);
+
+		// TC02: Ray is outside the polygon against an edge (0 points)
+		assertNull(poly.findIntersections(new Ray(new Point(3, 1, -1), new Vector(0, 0, 1))), ERR_SHOULD_BE_NULL);
+
+		// TC03: Ray is outside the polygon against a vertex (0 points)
+		assertNull(poly.findIntersections(new Ray(new Point(3, 3, -1), new Vector(0, 0, 1))), ERR_SHOULD_BE_NULL);
+
+		// =============== Boundary Values Tests ==================
+
+		// TC11: Ray intersects on an edge (0 points)
+		assertNull(poly.findIntersections(new Ray(new Point(1, 0, -1), new Vector(0, 0, 1))), ERR_SHOULD_BE_NULL);
+
+		// TC12: Ray intersects on a vertex (0 points)
+		assertNull(poly.findIntersections(new Ray(new Point(0, 0, -1), new Vector(0, 0, 1))), ERR_SHOULD_BE_NULL);
+
+		// TC13: Ray intersects on the continuation of an edge (0 points)
+		assertNull(poly.findIntersections(new Ray(new Point(3, 0, -1), new Vector(0, 0, 1))), ERR_SHOULD_BE_NULL);
 	}
 }
