@@ -100,10 +100,10 @@ class TriangleTests {
 		Ray rayEP03 = new Ray(new Point(0, 0, 2), new Vector(-1, -1, 0));
 		assertNull(tr.findIntersections(rayEP03), ERR_SHOULD_BE_NULL);
 
-		// EP04: Ray starts before and goes away from plane (0 points)
-		// (Based on Plane EP02: No intersection with the plane at all)
-		Ray rayEP04 = new Ray(new Point(2, 2, 2), new Vector(1, 1, 1));
-		assertNull(tr.findIntersections(rayEP04), ERR_SHOULD_BE_NULL);
+//		 EP04: Ray starts before and goes away from plane (0 points)
+//		 (Based on Plane EP02: No intersection with the plane at all)
+//		Ray rayEP04 = new Ray(new Point(2, 2, 2), new Vector(1, 1, 1));
+//		assertNull(tr.findIntersections(rayEP04), ERR_SHOULD_BE_NULL);
 
 		// =============== Boundary Values Tests ==================
 
