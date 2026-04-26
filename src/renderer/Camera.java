@@ -168,8 +168,8 @@ public class Camera implements Cloneable {
 		 * @return The Builder instance for method chaining
 		 */
 		public Builder setVpSize(double width, double height) {
-			this.target = target;
-			this.vTo = null;
+			_camera._width = width;
+			_camera._height = height;
 			return this;
 		}
 
@@ -221,7 +221,7 @@ public class Camera implements Cloneable {
 		 */
 		private void checkViewPlane() {
 			// Validation
-			if (isZero(_camera._distance))
+			if (_camera._distance <= 0 || isZero(_camera._distance))
 				throw new IllegalArgumentException("Distance cannot be zero");
 			if (_camera._width <= 0 || _camera._height <= 0)
 				throw new IllegalArgumentException("View plane dimensions must be positive");
