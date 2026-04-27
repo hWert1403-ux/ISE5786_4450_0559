@@ -213,4 +213,33 @@ class CameraTests {
 		Ray rayBV06 = camera3x3.constructRay(0, 0);
 		assertEquals(new Ray(LOCATION, new Vector(-2, 2, -10)), rayBV06, ERROR_CONSTRUCT_RAY);
 	}
+
+	/**
+	 * Test for the camera rotation bonus. Checks if rotating the camera 90 degrees
+	 * clockwise correctly shifts the rays. *
+	 * <p>
+	 * In a 90-degree clockwise rotation, a pixel that was originally offset upwards
+	 * (along the Y-axis) should now be offset to the right (along the X-axis).
+	 * </p>
+	 */
+	@Test
+	void testRotate() {
+		// Arrange: Create a camera rotated by 90 degrees clockwise
+		Camera camera90 = Camera.getBuilder().setLocation(Point.ZERO)
+				.setDirection(new Vector(0, 0, -1), new Vector(0, 1, 0)).setVpDistance(10).setVpSize(6, 6)
+				.setResolution(3, 3).rotate(90) // Rotate by 90 degrees
+				.build();
+
+		// Act: Construct a ray through the top-middle pixel (1, 0)
+		Ray ray = camera90.constructRay(1, 0);
+
+		// Assert: After a 90-degree rotation, the upward offset (Y=2) becomes a
+		// rightward offset (X=2)
+		// Note: The expected vector must be normalized because the camera always
+		// returns normalized rays
+		Vector expectedDir = new Vector(2, 0, -10).normalize();
+
+		assertEquals(new Ray(Point.ZERO, expectedDir), ray, "The ray direction is incorrect after 90-degree rotation");
+	}
+
 }

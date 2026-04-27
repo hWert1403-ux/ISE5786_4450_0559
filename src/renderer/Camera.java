@@ -272,5 +272,60 @@ public class Camera implements Cloneable {
 				throw new IllegalArgumentException("Resolution (nX, nY) must be greater than 0");
 			}
 		}
+
+		// ++++++++++++++++BONUS ROTATE++++++++++++++
+		/**
+		 * Rotates the camera around its view direction (vTo). * @param angle Rotation
+		 * angle in degrees, clockwise.
+		 * 
+		 * @return The Builder instance
+		 */
+		public Builder rotate(double angle) {
+			// 1. Ensure the direction vector exists
+			if (vTo == null) {
+				if (target == null)
+					throw new MissingResourceException("Missing direction", "Camera", "vTo");
+				vTo = target.subtract(_camera._p0);
+			}
+
+			// 2. Normalize and fix vectors to prevent accumulation of errors
+			Vector to = vTo.normalize();
+			Vector up = vUp.normalize();
+			Vector right;
+			try {
+				right = to.crossProduct(up).normalize();
+				up = right.crossProduct(to).normalize(); // Ensure vUp is 100% orthogonal to vTo
+			} catch (IllegalArgumentException e) {
+				throw new IllegalArgumentException("Cannot rotate: vTo and vUp are parallel");
+			}
+
+			// 3. Convert to radians (using positive angle to match test expectations)
+			double radians = Math.toRadians(angle);
+			double cosTheta = Math.cos(radians);
+			double sinTheta = Math.sin(radians);
+
+			// 4. "Clean" values close to zero for precise results at right angles (90, 180,
+			// etc.)
+			if (isZero(cosTheta))
+				cosTheta = 0;
+			if (isZero(sinTheta))
+				sinTheta = 0;
+
+			// 5. Calculate the new vector using Rodrigues' rotation formula:
+			// vUp_new = vUp * cos(theta) + (vTo x vUp) * sin(theta)
+			Vector term1 = (cosTheta == 0) ? null : up.scale(cosTheta);
+			Vector term2 = (sinTheta == 0) ? null : right.scale(sinTheta);
+
+			if (term1 == null && term2 == null)
+				return this;
+			if (term1 == null)
+				this.vUp = term2.normalize();
+			else if (term2 == null)
+				this.vUp = term1.normalize();
+			else
+				this.vUp = term1.add(term2).normalize();
+
+			return this;
+		}
 	}
 }
