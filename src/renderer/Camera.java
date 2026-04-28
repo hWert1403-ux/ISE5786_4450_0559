@@ -258,7 +258,7 @@ public class Camera implements Cloneable {
 			try {
 				_camera._vRight = _camera._vTo.crossProduct(_camera._vUp).normalize();
 				// Recalculate vUp to ensure it's exactly 90 degrees to vTo and vRight
-				_camera._vUp = _camera._vRight.crossProduct(_camera._vTo).normalize();
+				// _camera._vUp = _camera._vRight.crossProduct(_camera._vTo).normalize();
 			} catch (IllegalArgumentException e) {
 				throw new IllegalArgumentException("vTo and vUp cannot be parallel");
 			}
