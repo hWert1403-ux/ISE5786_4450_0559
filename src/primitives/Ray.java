@@ -2,6 +2,7 @@ package primitives;
 
 import static primitives.Util.isZero;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -81,5 +82,28 @@ public final class Ray {
 			// Safety measure: if scaling results in a zero vector due to precision
 			return _origin;
 		}
+	}
+
+	/**
+	 * find the colosest point of the intersection points list
+	 * 
+	 * @param points - intersection points list
+	 * @return closest point to origin, or null if the list is null
+	 */
+	public Point findClosestPoint(List<Point> points) {
+		if (points == null)
+			return null;
+
+		Point closest = null;
+		double minDistance = Double.POSITIVE_INFINITY;
+
+		for (Point p : points) {
+			double distance = _origin.distanceSquared(p); // Use squared distance for efficiency
+			if (distance < minDistance) {
+				minDistance = distance;
+				closest = p;
+			}
+		}
+		return closest;
 	}
 }
