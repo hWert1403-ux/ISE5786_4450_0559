@@ -82,7 +82,7 @@ class RenderTests {
 		Point o = new Point(0, 0, Z);
 		double radius = 50D;
 
-		scene.geometries //
+		scene._geometries //
 				.add(// center
 						new Sphere(o, radius),
 						// up left
@@ -108,6 +108,7 @@ class RenderTests {
 	 * @param builder the camera builder to use
 	 * @param xmlName the XML scene file name
 	 * @return the camera after rendering
+	 * @Disabled ++++++++++++++++++++++++++++++++++++++++++++++++++ADD BONUS XML
 	 */
 	Camera renderSceneXML(Camera.Builder builder, String xmlName) {
 		Scene scene = new Scene("Using XML");
@@ -130,6 +131,7 @@ class RenderTests {
 	 * @param builder  the camera builder to use
 	 * @param jsonName the JSON scene file name
 	 * @return the camera after rendering
+	 ** @Disabled ++++++++++++++++++++++++++++++++++++++++++++++++++ADD BONUS XML
 	 */
 	static Camera renderSceneJSON(Camera.Builder builder, String jsonName) {
 		Scene scene = new Scene("Using JSON");
@@ -144,7 +146,12 @@ class RenderTests {
 				.renderImage(); //
 	}
 
-	/** Test for XML based scene - for bonus */
+	/**
+	 * Test for XML based scene - for bonus
+	 * 
+	 * @Disabled ++++++++++++++++++++++++++++++++++++++++++++++++++ADD BONUS XML
+	 */
+
 	@Test
 	void testBasicRenderXml() {
 		renderSceneXML(baseCameraBuilder(), "basicRenderTestTwoColors") //
@@ -152,7 +159,11 @@ class RenderTests {
 				.writeToImage("render test xml");
 	}
 
-	/** Test for JSON based scene - for bonus */
+	/**
+	 * Test for JSON based scene - for bonus
+	 * 
+	 * * @Disabled +++++++++++++++++++++++++++++++++++++++++++ADD BONUS XML
+	 */
 	@Test
 	void testBasicRenderJson() {
 		renderSceneJSON(baseCameraBuilder(), "basicRenderTestTwoColors") //
