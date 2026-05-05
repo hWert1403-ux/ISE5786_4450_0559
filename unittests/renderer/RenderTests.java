@@ -80,11 +80,13 @@ class RenderTests {
 		Point pRM = new Point(100, 0, Z);
 		Point pRB = new Point(100, -100, Z);
 		Point o = new Point(0, 0, Z);
+		Point o2 = new Point(0, 0, -200D);
+
 		double radius = 50D;
 
 		scene._geometries //
 				.add(// center
-						new Sphere(o, radius),
+						new Sphere(o2, radius),
 						// up left
 						new Triangle(pLM, pMT, pLT),
 						// down left
