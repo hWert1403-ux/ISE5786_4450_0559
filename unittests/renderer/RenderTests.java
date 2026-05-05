@@ -10,6 +10,7 @@ import lighting.AmbientLight;
 import primitives.Color;
 import primitives.Point;
 import scene.Scene;
+import scene.SceneDescriptor;
 
 /**
  * End-to-end rendering tests.
@@ -79,7 +80,6 @@ class RenderTests {
 		Point pLB = new Point(-100, -100, Z);
 		Point pRM = new Point(100, 0, Z);
 		Point pRB = new Point(100, -100, Z);
-		Point o = new Point(0, 0, Z);
 		Point o2 = new Point(0, 0, -200D);
 
 		double radius = 50D;
@@ -133,14 +133,16 @@ class RenderTests {
 	 * @param builder  the camera builder to use
 	 * @param jsonName the JSON scene file name
 	 * @return the camera after rendering
-	 ** @Disabled ++++++++++++++++++++++++++++++++++++++++++++++++++ADD BONUS XML
 	 */
 	static Camera renderSceneJSON(Camera.Builder builder, String jsonName) {
-		Scene scene = new Scene("Using JSON");
+		// Scene scene = new Scene("Using JSON");
+
 		// Parse from JSON file into scene object instead of the new Scene above,
 		// Use the code you added in appropriate packages.
 		// ...
 		// NB: unit tests is not the correct place to put JSON parsing code.
+
+		Scene scene = SceneDescriptor.loadSceneFromJSON("scenes/" + jsonName + ".json");
 
 		return builder //
 				.setRayTracer(scene, RayTracerType.SIMPLE) //
@@ -164,7 +166,6 @@ class RenderTests {
 	/**
 	 * Test for JSON based scene - for bonus
 	 * 
-	 * * @Disabled +++++++++++++++++++++++++++++++++++++++++++ADD BONUS XML
 	 */
 	@Test
 	void testBasicRenderJson() {

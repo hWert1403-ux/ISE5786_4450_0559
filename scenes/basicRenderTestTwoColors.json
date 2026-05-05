@@ -1,0 +1,16 @@
+{
+  "name": "JSON Scene",
+  "background": "0 0 0",
+  "ambientLight": {
+    "color": "255 255 255",
+    "ka": 0.1
+  },
+  "geometries": [
+    {
+      "type": "Sphere",
+      "center": "0 0 -100",
+      "radius": 50,
+      "color": "255 0 0"
+    }
+  ]
+}
