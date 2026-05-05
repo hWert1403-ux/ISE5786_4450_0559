@@ -66,7 +66,7 @@ final class ImageWriter {
 	 * @param color  the color to write
 	 */
 	void writePixel(int xIndex, int yIndex, Color color) {
-		_image.setRGB(xIndex, yIndex, color.getColor().getRGB());
+		_image.setRGB(xIndex, yIndex, color.getColor().getRGB()); // primitive color->java color->RGB
 	}
 
 }

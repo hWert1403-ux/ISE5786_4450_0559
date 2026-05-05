@@ -37,6 +37,7 @@ public class Camera implements Cloneable {
 
 	/** to write picture file */
 	ImageWriter _imageWriter;
+	
 	/** to calculate color */
 	RayTracerBase _rayTracer;
 
@@ -134,7 +135,6 @@ public class Camera implements Cloneable {
 			for (int j = 0; j < _nY; j++)
 				if (i % interval == 0 || j % interval == 0)
 					_imageWriter.writePixel(i, j, color);
-
 		return this;
 	}
 
