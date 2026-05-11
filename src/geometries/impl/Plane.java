@@ -71,7 +71,7 @@ public class Plane extends Geometry {
 	}
 
 	@Override
-	public List<Point> findIntersections(Ray ray) {
+	protected List<Intersection> calcIntersectionsHelper(Ray ray) {
 		Point p0 = ray.origin();
 		Vector v = ray.direction();
 		Vector n = _normal;
@@ -94,7 +94,7 @@ public class Plane extends Geometry {
 			double t = alignZero(nQ0MinusP0 / nv);
 
 			// Return intersection point only if t > 0 (strictly positive)
-			return t <= 0 ? null : List.of(ray.getPoint(t));
+			return t <= 0 ? null : List.of(new Intersection(this, ray.getPoint(t)));
 
 		} catch (IllegalArgumentException e) {
 			// This happens when p0 == q0 (ray starts at the plane's reference point)

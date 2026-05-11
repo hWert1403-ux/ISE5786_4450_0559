@@ -5,6 +5,8 @@ import static primitives.Util.isZero;
 import java.util.List;
 import java.util.Objects;
 
+import geometries.api.Intersectable.Intersection;
+
 /**
  * Class Ray represents a semi-straight line in 3D space. The ray is defined by
  * an origin point and a normalized direction vector.
@@ -85,25 +87,40 @@ public final class Ray {
 	}
 
 	/**
-	 * find the closest point of the intersection points list
+	 * Finds the closest intersection point to the ray origin from a list of
+	 * intersections. This method is the new standard for finding intersections
+	 * including geometry data. * @param intersections List of intersections
+	 * (geometry and point)
 	 * 
-	 * @param points - intersection points list
-	 * @return closest point to origin, or null if the list is null
+	 * @return The closest intersection, or null if the list is empty or null
 	 */
-	public Point findClosestPoint(List<Point> points) {
-		if (points == null)
+	public Intersection findClosestIntersection(List<Intersection> intersections) {
+		if (intersections == null || intersections.isEmpty())
 			return null;
 
-		Point closest = null;
+		Intersection closest = null;
 		double minDistance = Double.POSITIVE_INFINITY;
 
-		for (Point p : points) {
-			double distance = _origin.distanceSquared(p); // Use squared distance for efficiency
+		for (var intersection : intersections) {
+			double distance = _origin.distance(intersection.point);
 			if (distance < minDistance) {
 				minDistance = distance;
-				closest = p;
+				closest = intersection;
 			}
 		}
 		return closest;
 	}
+
+	/**
+	 * Finds the closest point to the ray origin from a list of points. This is a
+	 * wrapper method for backward compatibility with previous stages. * @param
+	 * points List of intersection points
+	 * 
+	 * @return The closest point, or null if the list is empty or null
+	 */
+	public Point findClosestPoint(List<Point> points) {
+		return points == null ? null
+				: findClosestIntersection(points.stream().map(point -> new Intersection(null, point)).toList()).point;
+	}
+
 }

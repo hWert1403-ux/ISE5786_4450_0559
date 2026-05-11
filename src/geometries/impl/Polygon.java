@@ -1,6 +1,7 @@
 package geometries.impl;
 
-import static primitives.Util.*;
+import static primitives.Util.alignZero;
+import static primitives.Util.isZero;
 
 import java.util.List;
 
@@ -89,38 +90,44 @@ public class Polygon extends Geometry {
 	}
 
 	@Override
-	public List<Point> findIntersections(Ray ray) {
-	    // Step 1: Find intersection with the plane containing the polygon
-	    var planeIntersections = _plane.findIntersections(ray);
-	    if (planeIntersections == null) return null;
+	protected List<Intersection> calcIntersectionsHelper(Ray ray) {
+		// Step 1: Find intersection with the plane containing the polygon
+		var planeIntersections = _plane.findIntersections(ray);
+		if (planeIntersections == null)
+			return null;
 
-	    // Step 2: Check if the intersection point is inside the polygon boundaries
-	    Point p0 = ray.origin();
-	    Vector v = ray.direction();
-	    int size = _vertices.size();
+		// Step 2: Check if the intersection point is inside the polygon boundaries
+		Point p0 = ray.origin();
+		Vector v = ray.direction();
+		int size = _vertices.size();
 
-	    // Calculate the first side's sign
-	    // Vectors from the ray head to the triangle vertices
-	    Vector v1 = _vertices.get(size - 1).subtract(p0);
-	    Vector v2 = _vertices.get(0).subtract(p0);
-	    
-	    // Normal to the plane formed by the ray and the first edge
-	    double sign = alignZero(v.dotProduct(v1.crossProduct(v2)));
-	    if (sign == 0) return null; // Point is on an edge/vertex
+		// Calculate the first side's sign
+		// Vectors from the ray head to the triangle vertices
+		Vector v1 = _vertices.get(size - 1).subtract(p0);
+		Vector v2 = _vertices.get(0).subtract(p0);
 
-	    boolean positive = sign > 0;
+		// Normal to the plane formed by the ray and the first edge
+		double sign = alignZero(v.dotProduct(v1.crossProduct(v2)));
+		if (sign == 0)
+			return null; // Point is on an edge/vertex
 
-	    // Iterate through the rest of the edges
-	    for (int i = 0; i < size - 1; ++i) {
-	        v1 = v2;
-	        v2 = _vertices.get(i + 1).subtract(p0);
-	        sign = alignZero(v.dotProduct(v1.crossProduct(v2)));
-	        
-	        // If sign is 0 or different from the first sign, point is outside
-	        if (sign == 0 || (sign > 0) != positive) return null;
-	    }
+		boolean positive = sign > 0;
 
-	    // All signs are the same - point is inside
-	    return planeIntersections;
+		// Iterate through the rest of the edges
+		for (int i = 0; i < size - 1; ++i) {
+			v1 = v2;
+			v2 = _vertices.get(i + 1).subtract(p0);
+			sign = alignZero(v.dotProduct(v1.crossProduct(v2)));
+
+			// If sign is 0 or different from the first sign, point is outside
+			if (sign == 0 || (sign > 0) != positive)
+				return null;
+		}
+
+		// Step 3: All signs are the same - point is inside!
+		// We return a new Intersection where the geometry is 'this' (the polygon)
+		// and we take the point from the plane's calculation
+		return List.of(new Intersection(this, planeIntersections.get(0)));
+
 	}
 }

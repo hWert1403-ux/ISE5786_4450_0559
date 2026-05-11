@@ -34,7 +34,7 @@ public class Triangle extends Polygon {
 	}
 
 	@Override
-	public List<Point> findIntersections(Ray ray) {
+	protected List<Intersection> calcIntersectionsHelper(Ray ray) {
 		// Step 1: Find intersections with the plane containing the triangle
 		// The triangle is a part of a plane, so if there's no intersection with the
 		// plane,
@@ -64,10 +64,12 @@ public class Triangle extends Polygon {
 		double s2 = alignZero(v.dotProduct(n2));
 		double s3 = alignZero(v.dotProduct(n3));
 
-		// If all dot products have the same sign (all > 0 or all < 0), the point is
-		// inside.
-		// If any dot product is 0, the point is on an edge or vertex,
-		// and according to instructions, we return null.
-		return ((s1 > 0 && s2 > 0 && s3 > 0) || (s1 < 0 && s2 < 0 && s3 < 0)) ? planeIntersections : null;
+		// If all dot products have the same sign, the point is inside.
+		// We return a new Intersection with 'this' (the Triangle)
+		if ((s1 > 0 && s2 > 0 && s3 > 0) || (s1 < 0 && s2 < 0 && s3 < 0)) {
+			return List.of(new Intersection(this, planeIntersections.get(0)));
+		}
+
+		return null;
 	}
 }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import geometries.api.Intersectable;
-import primitives.Point;
 import primitives.Ray;
 
 /**
@@ -42,21 +41,28 @@ public class Geometries extends Intersectable {
 		}
 	}
 
+	/**
+	 * Helper method to calculate intersections for all shapes in the collection. It
+	 * follows the NVI pattern and returns a list of Intersection objects. * @param
+	 * ray The ray that hits the geometries
+	 * 
+	 * @return List of intersections, or null if no intersections are found
+	 */
 	@Override
-	public List<Point> findIntersections(Ray ray) {
-		List<Point> result = null;
+	protected List<Intersection> calcIntersectionsHelper(Ray ray) {
+		List<Intersection> result = null;
 
-		// Iterate through all geometries using foreach loop
 		for (Intersectable geo : _geometries) {
-			var geoPoints = geo.findIntersections(ray);
+			// IMPORTANT: We must call the public calcIntersections of each geometry
+			var geoIntersections = geo.calcIntersections(ray);
 
-			if (geoPoints != null) {
+			if (geoIntersections != null) {
 				// Initialize the list only when the first intersection is found
 				if (result == null) {
 					result = new ArrayList<>();
 				}
-				// Collect all intersection points (Delegation)
-				result.addAll(geoPoints);
+				// Add all found intersections from the specific geometry
+				result.addAll(geoIntersections);
 			}
 		}
 		return result;

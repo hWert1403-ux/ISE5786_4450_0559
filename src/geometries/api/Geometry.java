@@ -1,6 +1,7 @@
 
 package geometries.api;
 
+import primitives.Color;
 import primitives.Point;
 import primitives.Vector;
 
@@ -11,6 +12,8 @@ import primitives.Vector;
  */
 public abstract class Geometry extends Intersectable {
 
+	private Color _emission = Color.BLACK;
+
 	/**
 	 * Calculates the normal vector to the geometric body at a specific point. The
 	 * normal is a unit vector (normalized) that is orthogonal to the surface at the
@@ -19,5 +22,23 @@ public abstract class Geometry extends Intersectable {
 	 * @return The normalized normal vector.
 	 */
 	public abstract Vector getNormal(Point point);
+
+	/**
+	 * Getter for the emission color. * @return The emission color.
+	 */
+	public Color getEmission() {
+		return _emission;
+	}
+
+	/**
+	 * Setter for the emission color (Builder pattern). * @param emission The new
+	 * emission color.
+	 * 
+	 * @return The Geometry object itself for chaining.
+	 */
+	public Geometry setEmission(Color emission) {
+		this._emission = emission;
+		return this;
+	}
 
 }

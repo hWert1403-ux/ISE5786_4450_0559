@@ -1,7 +1,7 @@
 package geometries.impl;
 
 import static primitives.Util.alignZero;
-
+import static geometries.api.Intersectable.Intersection;
 import java.util.List;
 
 import primitives.Point;
@@ -46,7 +46,7 @@ public class Sphere extends RadialGeometry {
 	}
 
 	@Override
-	public List<Point> findIntersections(Ray ray) {
+	 protected List<Intersection> calcIntersectionsHelper(Ray ray) {
 		Point p0 = ray.origin();
 		Vector v = ray.direction();
 		Vector l;
@@ -55,7 +55,7 @@ public class Sphere extends RadialGeometry {
 			l = _center.subtract(p0);
 		} catch (IllegalArgumentException ignore) {
 			// p0 is at the center, only one intersection at t = radius
-			return List.of(ray.getPoint(_radius));
+			return List.of(new Intersection(this, ray.getPoint(_radius)));
 		}
 
 		double tm = alignZero(v.dotProduct(l));
@@ -78,11 +78,15 @@ public class Sphere extends RadialGeometry {
 			return null;
 
 		if (t1Valid && t2Valid) {
-			// Return points sorted by distance from ray head (t1 < t2)
-			return t1 < t2 ? List.of(ray.getPoint(t1), ray.getPoint(t2)) : List.of(ray.getPoint(t2), ray.getPoint(t1));
+			// Return two intersections: each one contains 'this' (the sphere) and the point 
+	        return t1 < t2 
+	            ? List.of(new Intersection(this, ray.getPoint(t1)), new Intersection(this, ray.getPoint(t2))) 
+	            : List.of(new Intersection(this, ray.getPoint(t2)), new Intersection(this, ray.getPoint(t1)));
 		}
 
-		// Only one of them is valid
-		return t1Valid ? List.of(ray.getPoint(t1)) : List.of(ray.getPoint(t2));
+		// Only one intersection point is valid 
+	    return t1Valid 
+	        ? List.of(new Intersection(this, ray.getPoint(t1))) 
+	        : List.of(new Intersection(this, ray.getPoint(t2)));
 	}
 }

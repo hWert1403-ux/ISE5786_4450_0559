@@ -115,4 +115,5 @@ class RayTests {
 		List<Point> pointsLast = List.of(p2, p3, p1);
 		assertEquals(p1, ray.findClosestPoint(pointsLast), "The last point should be the closest");
 	}
+
 }
