@@ -5,13 +5,14 @@ import static java.awt.Color.GREEN;
 import static java.awt.Color.RED;
 import static java.awt.Color.WHITE;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import geometries.impl.Sphere;
 import geometries.impl.Triangle;
 import lighting.AmbientLight;
 import primitives.Color;
+import primitives.Double3;
+import primitives.Material;
 import primitives.Point;
 import primitives.Vector;
 import scene.Scene;
@@ -118,15 +119,28 @@ class RenderStage6Tests {
 	 * factors of the bodies and render it into a png image with a grid
 	 */
 	@Test
-	@Disabled("To be updated and enabled by students")
 	void testRenderAmbientColor() {
-		Scene scene = new Scene("Ambient colors"); // TODO by students
-		scene._geometries //
-				.add(_sphere, // TODO by students
-						_triangleLeftTop, // TODO by students
-						_triangleLeftBottom, // TODO by students
-						_triangleRightBottom // TODO by students
-				);
+		Scene scene = new Scene("Ambient colors");
+
+		// הגדרת תאורה סביבתית לבנה חזקה (לפי המצגת)
+		scene.setAmbientLight(new AmbientLight(new Color(255, 255, 255)));
+
+		scene._geometries.add(
+				// sphere: Ambient 0.4
+				_sphere.setMaterial(new Material().setKA(0.4)),
+
+				// upper left triangle: emission green
+				_triangleLeftTop.setEmission(new Color(0, 255, 0))
+						.setMaterial(new Material().setKA(new Double3(0, 0.8, 0))),
+
+				// lower left triangle: emission red
+				_triangleLeftBottom.setEmission(new Color(255, 0, 0))
+						.setMaterial(new Material().setKA(new Double3(0.8, 0, 0))),
+
+				// lower right triangle: Ambient blue, emission blue
+				_triangleRightBottom.setEmission(new Color(0, 0, 255))
+						.setMaterial(new Material().setKA(new Double3(0, 0, 0.8))));
+
 		createImage(scene, "ambient render test");
 	}
 }

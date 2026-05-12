@@ -2,6 +2,7 @@ package geometries.api;
 
 import java.util.List;
 
+import primitives.Material;
 import primitives.Point;
 import primitives.Ray;
 
@@ -21,6 +22,8 @@ public abstract class Intersectable {
 		public final Geometry geometry;
 		/** The point of intersection */
 		public final Point point;
+		/** The material with k (Ambient) */
+		public Material material;
 
 		/**
 		 * Constructor for Intersection.
@@ -31,6 +34,8 @@ public abstract class Intersectable {
 		public Intersection(Geometry geometry, Point point) {
 			this.geometry = geometry;
 			this.point = point;
+			// null if there is no geometry
+			this.material = (geometry == null) ? new Material() : geometry.getMaterial();
 		}
 
 		@Override

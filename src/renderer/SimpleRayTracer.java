@@ -1,7 +1,8 @@
 package renderer;
 
+import geometries.api.Intersectable.Intersection;
 import primitives.Color;
-import primitives.Point;
+import primitives.Double3;
 import primitives.Ray;
 import scene.Scene;
 
@@ -28,7 +29,7 @@ class SimpleRayTracer extends RayTracerBase {
 	@Override
 	public Color traceRay(Ray ray) {
 		// Find all intersections with geometries in the scene
-		var intersections = _scene._geometries.findIntersections(ray);
+		var intersections = _scene._geometries.calcIntersections(ray);
 
 		// If no intersections, return the scene's background color
 		if (intersections == null) {
@@ -36,21 +37,29 @@ class SimpleRayTracer extends RayTracerBase {
 		}
 
 		// Find the closest point to the ray's head
-		Point closestPoint = ray.findClosestPoint(intersections);
+		Intersection closestIntersection = ray.findClosestIntersection(intersections);
 
 		// Calculate the color at that point
-		return calcColor(closestPoint);
+		return calcColor(closestIntersection);
 	}
 
 	/**
-	 * Helper method to calculate the color at a specific point. Currently returns
-	 * the combined color of ambient light and background.
+	 * Helper method to calculate the color at a specific point. Incorporates
+	 * emission color and ambient light attenuated by the material's kA factor.
+	 * * @param intersection The intersection point including geometry and material
+	 * data.
 	 * 
-	 * @param intersection The point of intersection.
-	 * @return The color at the point.
+	 * @return The calculated color at the point.
 	 */
-	private Color calcColor(Point intersection) {
-		// Return the intensity of ambient light
-		return _scene._ambientLight.getIntensity();
+	private Color calcColor(Intersection intersection) {
+		// 1. Get the ambient light intensity from the scene
+		Color ambientLight = _scene._ambientLight.getIntensity();
+
+		// 2. Get the kA factor from the material of the specific geometry
+		Double3 kA = intersection.material.kA;
+
+		// 3. Formula: Ip = Ie + kA * Ia
+		// Scale the ambient light by kA and add the emission color
+		return intersection.geometry.getEmission().add(ambientLight.scale(kA));
 	}
 }
