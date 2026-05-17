@@ -15,14 +15,12 @@ public class DirectionalLight extends Light implements LightSource {
 
 	@Override
 	public Vector getL(Point p) {
-		// TODO Auto-generated method stub
-		return null;
+		return _direction;
 	}
 
 	@Override
 	public Color getIntensity(Point p) {
-		// TODO Auto-generated method stub
-		return null;
+		return getIntensity();
 	}
 
 }
