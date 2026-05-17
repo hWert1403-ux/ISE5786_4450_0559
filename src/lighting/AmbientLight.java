@@ -8,12 +8,7 @@ import primitives.Color;
 /**
  * Class representing ambient light in a 3D scene. This class is immutable.
  */
-public class AmbientLight {
-
-	/**
-	 * The intensity of the ambient light.
-	 */
-	private final Color _intensity;
+public class AmbientLight extends Light {
 
 	/**
 	 * Static constant representing no ambient light (Black color).
@@ -26,15 +21,7 @@ public class AmbientLight {
 	 * @param intensity the color intensity of the light.
 	 */
 	public AmbientLight(Color intensity) {
-		_intensity = intensity;
+		super(intensity);
 	}
 
-	/**
-	 * Getter for the light intensity.
-	 * 
-	 * @return the intensity color.
-	 */
-	public Color getIntensity() {
-		return _intensity;
-	}
 }
