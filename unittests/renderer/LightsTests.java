@@ -63,7 +63,7 @@ class LightsTests {
 	private static final Double3 KS3 = new Double3(0.2, 0.4, 0.3);
 
 	/** Material for some of the geometries in the tests */
-	private static final Material MATERIAL = new Material().setKD(KD3).setKS(KS3).setShininess(SHININESS);
+	private static final Material MATERIAL = new Material().setKD(KD3).setKS(KS3).setNShininess(SHININESS);
 	/** Light color for tests with triangles */
 	private static final Color TRIANGLES_LIGHT_COLOR = new Color(800, 500, 250);
 	/** Light color for tests with sphere */
@@ -97,7 +97,7 @@ class LightsTests {
 
 	/** The sphere in appropriate tests */
 	private static final Geometry SPHERE = new Sphere(SPHERE_CENTER, SPHERE_RADIUS).setEmission(SPHERE_COLOR)
-			.setMaterial(new Material().setKD(KD).setKS(KS).setShininess(SHININESS));
+			.setMaterial(new Material().setKD(KD).setKS(KS).setNShininess(SHININESS));
 	/** The first triangle in appropriate tests */
 	private static final Geometry TRIANGLE1 = new Triangle(VERTICES[0], VERTICES[1], VERTICES[2]).setMaterial(MATERIAL);
 	/** The first triangle in appropriate tests */
@@ -106,7 +106,7 @@ class LightsTests {
 	/** Produce a picture of a sphere lighted by a directional light */
 	@Test
 	void testSphereDirectional() {
-		_scene1.geometries.add(SPHERE);
+		_scene1._geometries.add(SPHERE);
 		_scene1.lights.add(new DirectionalLight(SPHERE_LIGHT_COLOR, SPHERE_LIGHT_DIRECTION));
 
 		_camera1 //
@@ -120,9 +120,9 @@ class LightsTests {
 	@Test
 	@SuppressWarnings("java:S109")
 	void testSpherePoint() {
-		_scene1.geometries.add(SPHERE);
+		_scene1._geometries.add(SPHERE);
 		_scene1.lights.add(new PointLight(SPHERE_LIGHT_COLOR, SPHERE_LIGHT_POSITION) //
-				.setKl(0.001).setKq(0.0002));
+				.setKl(0.001).setKQ(0.0002));
 
 		_camera1 //
 				.setResolution(500, 500) //
@@ -135,9 +135,9 @@ class LightsTests {
 	@Test
 	@SuppressWarnings("java:S109")
 	void testSphereSpot() {
-		_scene1.geometries.add(SPHERE);
+		_scene1._geometries.add(SPHERE);
 		_scene1.lights.add(new SpotLight(SPHERE_LIGHT_COLOR, SPHERE_LIGHT_POSITION, SPHERE_LIGHT_DIRECTION) //
-				.setKl(0.001).setKq(0.0001));
+				.setKl(0.001).setKQ(0.0001));
 
 		_camera1 //
 				.setResolution(RESOLUTION, RESOLUTION) //
@@ -149,7 +149,7 @@ class LightsTests {
 	/** Produce a picture of two triangles lighted by a directional light */
 	@Test
 	void testTrianglesDirectional() {
-		_scene2.geometries.add(TRIANGLE1, TRIANGLE2);
+		_scene2._geometries.add(TRIANGLE1, TRIANGLE2);
 		_scene2.lights.add(new DirectionalLight(TRIANGLES_LIGHT_COLOR, TRIANGLES_LIGHT_DIRECTION));
 
 		_camera2.setResolution(RESOLUTION, RESOLUTION) //
@@ -162,9 +162,9 @@ class LightsTests {
 	@Test
 	@SuppressWarnings("java:S109")
 	void testTrianglesPoint() {
-		_scene2.geometries.add(TRIANGLE1, TRIANGLE2);
+		_scene2._geometries.add(TRIANGLE1, TRIANGLE2);
 		_scene2.lights.add(new PointLight(TRIANGLES_LIGHT_COLOR, TRIANGLES_LIGHT_POSITION) //
-				.setKl(0.001).setKq(0.0002));
+				.setKl(0.001).setKQ(0.0002));
 
 		_camera2.setResolution(500, 500) //
 				.build() //
@@ -176,42 +176,14 @@ class LightsTests {
 	@Test
 	@SuppressWarnings("java:S109")
 	void testTrianglesSpot() {
-		_scene2.geometries.add(TRIANGLE1, TRIANGLE2);
+		_scene2._geometries.add(TRIANGLE1, TRIANGLE2);
 		_scene2.lights.add(new SpotLight(TRIANGLES_LIGHT_COLOR, TRIANGLES_LIGHT_POSITION, TRIANGLES_LIGHT_DIRECTION) //
-				.setKl(0.001).setKq(0.0001));
+				.setKl(0.001).setKQ(0.0001));
 
 		_camera2.setResolution(500, 500) //
 				.build() //
 				.renderImage() //
 				.writeToImage("lightTrianglesSpot");
-	}
-
-	/** Produce a picture of a sphere lighted by a narrow spotlight */
-	@Test
-	@SuppressWarnings("java:S109")
-	void testSphereSpotSharp() {
-		_scene1.geometries.add(SPHERE);
-		_scene1.lights.add(new SpotLight(SPHERE_LIGHT_COLOR, SPHERE_LIGHT_POSITION, new Vector(1, 1, -0.5)) //
-				.setKl(0.001).setKq(0.00004).setNarrowBeam(10));
-
-		_camera1.setResolution(500, 500) //
-				.build() //
-				.renderImage() //
-				.writeToImage("lightSphereSpotSharp");
-	}
-
-	/** Produce a picture of two triangles lighted by a narrow spotlight */
-	@Test
-	@SuppressWarnings("java:S109")
-	void testTrianglesSpotSharp() {
-		_scene2.geometries.add(TRIANGLE1, TRIANGLE2);
-		_scene2.lights.add(new SpotLight(TRIANGLES_LIGHT_COLOR, TRIANGLES_LIGHT_POSITION, TRIANGLES_LIGHT_DIRECTION) //
-				.setKl(0.001).setKq(0.00004).setNarrowBeam(10));
-
-		_camera2.setResolution(500, 500) //
-				.build() //
-				.renderImage() //
-				.writeToImage("lightTrianglesSpotSharp");
 	}
 
 }

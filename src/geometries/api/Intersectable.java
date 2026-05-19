@@ -2,9 +2,11 @@ package geometries.api;
 
 import java.util.List;
 
+import lighting.LightSource;
 import primitives.Material;
 import primitives.Point;
 import primitives.Ray;
+import primitives.Vector;
 
 /**
  * Abstract class to calculate intersections between rays and objects. Supports
@@ -24,6 +26,24 @@ public abstract class Intersectable {
 		public final Point point;
 		/** The material with k (Ambient) */
 		public Material material;
+
+		/** normal at intersection point */
+		public Vector normal;
+
+		/** direction of intersection ray */
+		public Vector v;
+
+		/** dot scale between v and normal */
+		public double vNormal;
+
+		/** the active light source */
+		public LightSource light;
+
+		/** light direction */
+		public Vector l;
+
+		/** dot scale between l and normal */
+		public double lNormal;
 
 		/**
 		 * Constructor for Intersection.

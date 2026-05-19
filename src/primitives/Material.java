@@ -13,7 +13,9 @@ public class Material {
 	 * different attenuation for Red, Green, and Blue. Initialized to Double3.ONE
 	 * (1,1,1) by default.
 	 */
-	public Double3 kA = Double3.ONE;
+	public Double3 kA = Double3.ONE, kD = Double3.ZERO, kS = Double3.ZERO;
+
+	public int nShininess = 0;
 
 	/**
 	 * Default constructor for Material.
@@ -41,6 +43,31 @@ public class Material {
 	 */
 	public Material setKA(double k) {
 		this.kA = new Double3(k);
+		return this;
+	}
+
+	public Material setKD(double k) {
+		this.kD = new Double3(k);
+		return this;
+	}
+
+	public Material setKD(Double3 k) {
+		this.kD = k;
+		return this;
+	}
+
+	public Material setKS(double k) {
+		this.kS = new Double3(k);
+		return this;
+	}
+
+	public Material setKS(Double3 k) {
+		this.kS = k;
+		return this;
+	}
+
+	public Material setNShininess(int n) {
+		this.nShininess = n;
 		return this;
 	}
 }
