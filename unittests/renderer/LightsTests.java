@@ -186,4 +186,64 @@ class LightsTests {
 				.writeToImage("lightTrianglesSpot");
 	}
 
+	/**
+	 * Produce a picture of a sphere lighted by multiple light sources (Directional,
+	 * Point, and Spot) working together.
+	 */
+	@Test
+	@SuppressWarnings("java:S109")
+	void testSphereMultiLights() {
+		_scene1._geometries.add(SPHERE);
+
+		// Adding three different types of light sources with distinct colors,
+		// positions, and directions
+		_scene1.lights.addAll(java.util.List.of(
+				// 1. Directional Light (Yellowish) from top-right
+				new DirectionalLight(new Color(400, 300, 0), new Vector(1, -1, -0.5)),
+
+				// 2. Point Light (Red) on the left side - position is distinct from
+				// SPHERE_LIGHT_POSITION
+				new PointLight(new Color(500, 0, 0), new Point(-60, 50, 40)) //
+						.setKl(0.001).setKQ(0.0002),
+
+				// 3. Spot Light (Cyan/Blue-Green) focusing from center-front - distinct
+				// position/direction
+				new SpotLight(new Color(0, 400, 400), new Point(30, 30, 60), new Vector(-1, -1, -2)) //
+						.setKl(0.001).setKQ(0.0001)));
+
+		_camera1.setResolution(RESOLUTION, RESOLUTION) //
+				.build() //
+				.renderImage() //
+				.writeToImage("lightSphereMultipleLights");
+	}
+
+	/**
+	 * Produce a picture of two triangles lighted by multiple light sources
+	 * (Directional, Point, and Spot) working together.
+	 */
+	@Test
+	@SuppressWarnings("java:S109")
+	void testTrianglesMultiLights() {
+		_scene2._geometries.add(TRIANGLE1, TRIANGLE2);
+
+		// Adjusted intensities and higher attenuation coefficients to prevent
+		// over-saturation
+		_scene2.lights.addAll(java.util.List.of(
+				// 1. Directional Light - כחול עמוק משמאל למעלה
+				new DirectionalLight(new Color(0, 0, 250), new Vector(1, -1, -0.5)),
+
+				// 2. Point Light - אדום חם מימין למטה
+				new PointLight(new Color(400, 0, 0), new Point(80, -80, -120)) //
+						.setKl(0.004).setKQ(0.0008),
+
+				// 3. Spot Light - ירוק בהיר מלמעלה למרכז
+				new SpotLight(new Color(0, 400, 0), new Point(0, 80, -90), new Vector(0, -1, -1)) //
+						.setKl(0.005).setKQ(0.0005)));
+
+		_camera2.setResolution(RESOLUTION, RESOLUTION) //
+				.build() //
+				.renderImage() //
+				.writeToImage("lightTrianglesMultipleLights");
+	}
+
 }
