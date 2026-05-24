@@ -14,6 +14,7 @@ public class Material {
 	 * (1,1,1) by default.
 	 */
 	public Double3 kA = Double3.ONE, kD = Double3.ZERO, kS = Double3.ZERO;
+	public Double3 kT = Double3.ZERO, kR = Double3.ZERO;
 
 	public int nShininess = 0;
 
@@ -63,6 +64,26 @@ public class Material {
 
 	public Material setKS(Double3 k) {
 		this.kS = k;
+		return this;
+	}
+
+	public Material setKT(double k) {
+		this.kT = new Double3(k);
+		return this;
+	}
+
+	public Material setKT(Double3 k) {
+		this.kT = k;
+		return this;
+	}
+
+	public Material setKR(double k) {
+		this.kR = new Double3(k);
+		return this;
+	}
+
+	public Material setKR(Double3 k) {
+		this.kR = k;
 		return this;
 	}
 

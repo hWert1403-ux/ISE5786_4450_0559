@@ -14,6 +14,9 @@ import geometries.api.Intersectable.Intersection;
  * @author hadas&shani
  */
 public final class Ray {
+
+	private static final double DELTA = 0.1;
+
 	/** The origin point of the ray */
 	private final Point _origin;
 	/** The normalized direction vector of the ray */
@@ -29,6 +32,18 @@ public final class Ray {
 	public Ray(Point origin, Vector direction) {
 		_origin = origin;
 		_direction = direction.normalize();
+	}
+
+	/*
+	 * Another constructor: initialize a Ray with an origin point, a direction
+	 * vector and normal
+	 */
+	public Ray(Point origin, Vector direction, Vector normal) {
+		this._direction = direction.normalize();
+
+		double nv = normal.dotProduct(this._direction);
+		Vector deltaVector = normal.scale(nv > 0 ? DELTA : -DELTA);
+		this._origin = origin.add(deltaVector);
 	}
 
 	/**
