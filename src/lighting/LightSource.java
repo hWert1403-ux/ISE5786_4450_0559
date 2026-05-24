@@ -29,4 +29,11 @@ public interface LightSource {
 	 */
 	public Color getIntensity(Point p);
 
+	/**
+	 * 
+	 * @param point
+	 * @return distance between light source to geometry
+	 */
+	double getDistance(Point point);
+
 }

@@ -14,6 +14,8 @@ import scene.Scene;
  */
 class SimpleRayTracer extends RayTracerBase {
 
+	private static final double DELTA = 0.1;
+
 	/**
 	 * Constructs a simple ray tracer for the given scene.
 	 *
@@ -56,7 +58,7 @@ class SimpleRayTracer extends RayTracerBase {
 	public Color calcColorLocalEffects(Intersection intersection) {
 		Color color = intersection.geometry.getEmission();
 		for (LightSource lightSource : _scene.lights) {
-			if (preprocessLightSource(intersection, lightSource)) {
+			if (preprocessLightSource(intersection, lightSource) && unshaded(intersection)) {
 				color = color.add(lightSource.getIntensity(intersection.point)
 						.scale(calcDiffuse(intersection).add(calcSpecular(intersection))));
 			}
@@ -72,5 +74,31 @@ class SimpleRayTracer extends RayTracerBase {
 		Vector r = intersection.normal.scale(2 * intersection.lNormal).subtract(intersection.l);
 		return intersection.material.kS
 				.scale(Math.pow(Math.max(0.0, (intersection.v.dotProduct(r))), intersection.material.nShininess));
+	}
+
+	/**
+	 * Avoid self-shadowing by slightly shifting the shadow ray head along the
+	 * normal toward the light source
+	 * 
+	 * @param intersection
+	 * @return true if there is no shadow
+	 */
+	private boolean unshaded(Intersection intersection) {
+		Vector pointToLight = intersection.l.scale(-1);
+		Vector delta = intersection.normal.scale(intersection.lNormal < 0 ? DELTA : -DELTA);
+
+		Ray shadowRay = new Ray(intersection.point.add(delta), pointToLight);
+		var shadowIntersections = _scene._geometries.findIntersections(shadowRay);
+		if (shadowIntersections == null)
+			return true;
+
+		double lightDistance = intersection.light.getDistance(intersection.point);
+		for (var s : shadowIntersections)// s is point
+		{
+			double distanceToObstacle = intersection.point.distance(s);
+			if (distanceToObstacle < lightDistance)
+				return false;
+		}
+		return true;
 	}
 }
