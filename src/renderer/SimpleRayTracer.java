@@ -62,13 +62,45 @@ class SimpleRayTracer extends RayTracerBase {
 		return 1 == level ? color : color.add(calcGlobalEffects(intersection, level, k));
 	}
 
+//	public Color calcColorLocalEffects(Intersection intersection, Double3 k) {
+//		Color color = intersection.geometry.getEmission();
+//		for (LightSource lightSource : _scene.lights) {
+//			if (preprocessLightSource(intersection, lightSource) && unshaded(intersection)) {
+//				color = color.add(lightSource.getIntensity(intersection.point)
+//						.scale(calcDiffuse(intersection).add(calcSpecular(intersection))));
+//				color = color.add(color.scale(k)); //מקדם הנחתה
+//			}
+//		}
+//		return color;
+//	}
+
+	/**
+	 * Calculate local lighting effects (Emission, Diffuse, Specular) with
+	 * transparency support (shadow attenuation). * @param intersection The
+	 * intersection point data
+	 * 
+	 * @param k The cumulative attenuation factor from recursion
+	 * @return The calculated local effects color
+	 */
 	public Color calcColorLocalEffects(Intersection intersection, Double3 k) {
+		// צבע הפליטה העצמי של הגוף (אינו מושפע מאורות חיצוניים או מ-k)
 		Color color = intersection.geometry.getEmission();
+
 		for (LightSource lightSource : _scene.lights) {
-			if (preprocessLightSource(intersection, lightSource) && unshaded(intersection)) {
-				color = color.add(lightSource.getIntensity(intersection.point)
-						.scale(calcDiffuse(intersection).add(calcSpecular(intersection))));
-				color = color.add(color.scale(k));
+			// עדכון מקור האור וביצוע בדיקות כיוון מקדימות (לפי המימוש שלך)
+			if (preprocessLightSource(intersection, lightSource)) {
+
+				// חישוב מקדם השקיפות המצטבר (החלשת האור עקב עצמים שקופים בדרך)
+				Double3 ktr = transparency(intersection);
+
+				// בדיקה האם התרומה הכוללת של מקור האור (k * ktr) עדיין משמעותית לעין
+				if (ktr.scale(k).isGreaterThan(MIN_CALC_COLOR_K)) {
+
+					// חישוב הרכיבים המקומיים (דיפוזי + ספקולרי),
+					// מכפילים אותם בעוצמת האור, ב-ktr (השפעת הצל), וב-k (החלשת הרקורסיה)
+					color = color.add(lightSource.getIntensity(intersection.point).scale(ktr)
+							.scale(calcDiffuse(intersection).add(calcSpecular(intersection))).scale(k));
+				}
 			}
 		}
 		return color;
@@ -114,6 +146,44 @@ class SimpleRayTracer extends RayTracerBase {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Calculates the transparency factor (shadow attenuation) along the shadow ray.
+	 * * @param intersection The intersection point data
+	 * 
+	 * @return Cumulative transparency coefficient as Double3
+	 */
+	private Double3 transparency(Intersection intersection) {
+		Vector pointToLight = intersection.l.scale(-1);
+
+		Ray shadowRay = new Ray(intersection.point, pointToLight, intersection.normal);
+
+		var shadowIntersections = _scene._geometries.calcIntersections(shadowRay);
+		if (shadowIntersections == null) {
+			return Double3.ONE; // אין גופים מסתירים בכלל - האור עובר במלואו
+		}
+
+		double lightDistance = intersection.light.getDistance(intersection.point);
+
+		// אתחול מקדם השקיפות המצטבר ל-1 (מעבר אור מלא)
+		Double3 ktr = Double3.ONE;
+
+		for (var s : shadowIntersections) {
+			// בדיקה האם נקודת החיתוך המסתירה נמצאת בין הנקודה שלנו למקור האור
+			if (Util.alignZero(intersection.point.distance(s.point) - lightDistance) < 0) {
+
+				// הכפלת המקדם המצטבר במקדם השקיפות (kT) של הגוף המסתיר הספציפי
+				ktr = ktr.scale(s.geometry.getMaterial().kT);
+
+				// אופטימיזציה: אם רמת השקיפות המצטברת קטנה מהסף, האור חסום לחלוטין
+				if (!ktr.isGreaterThan(MIN_CALC_COLOR_K)) {
+					return Double3.ZERO; // צל מלא, ניתן לעצור את הלולאה מוקדם
+				}
+			}
+		}
+
+		return ktr;
 	}
 
 	/**
