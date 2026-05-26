@@ -1,10 +1,11 @@
 package renderer;
 
+import static primitives.Util.alignZero;
+
 import geometries.api.Intersectable.Intersection;
 import lighting.LightSource;
 import primitives.Color;
 import primitives.Ray;
-import primitives.Util;
 import primitives.Vector;
 import scene.Scene;
 
@@ -38,9 +39,8 @@ abstract class RayTracerBase {
 	protected boolean preprocessIntersection(Intersection intersection, Vector v) {
 		intersection.v = v;
 		intersection.normal = intersection.geometry.getNormal(intersection.point);
-		intersection.vNormal = Util.alignZero(intersection.v.dotProduct(intersection.normal)); // TODO why have
-																								// util.zero and not
-																								// zero alone
+		intersection.vNormal = alignZero(intersection.v.dotProduct(intersection.normal));
+
 		return intersection.vNormal != 0;
 	}
 
@@ -48,7 +48,7 @@ abstract class RayTracerBase {
 	protected boolean preprocessLightSource(Intersection intersection, LightSource light) {
 		intersection.light = light;
 		intersection.l = light.getL(intersection.point);
-		intersection.lNormal = Util.alignZero(intersection.l.dotProduct(intersection.normal));
+		intersection.lNormal = alignZero(intersection.l.dotProduct(intersection.normal));
 		return intersection.lNormal * intersection.vNormal > 0;
 	}
 }

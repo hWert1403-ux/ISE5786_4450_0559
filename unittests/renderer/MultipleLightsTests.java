@@ -108,13 +108,15 @@ public class MultipleLightsTests {
 
 		_scene2._geometries.add(triangle1, triangle2);
 
+		// _scene2._geometries.add(triangle1, triangle2);
+
 		// 1. אור כיווני: צבע כחול חלש ומעומעם מאוד, מגיע מלמעלה ימין
 		// הוא משמש רק רקע קל כדי שהאזורים החשוכים לא יהיו שחורים לחלוטין
-		_scene2.lights.add(new DirectionalLight(new Color(0, 0, 150), new Vector(1, -1, -1)));
+//		_scene2.lights.add(new DirectionalLight(new Color(500, 300, 300), new Vector(-1, -1, -0.8)));
 
 		// 2. אור נקודתי: צבע אדום חזק, ממוקם רחוק בצד ימין למטה (Z = -130)
 		// הוא שוטף את החלק הימני התחתון של המשטח באור אדום דיפוזי רחב
-		_scene2.lights.add(new PointLight(new Color(400, 0, 0), new Point(60, -50, -130)).setKl(0.002).setKQ(0.0004));
+//		_scene2.lights.add(new PointLight(new Color(800, 0, 0), new Point(60, -50, -130)).setKl(0.002).setKQ(0.0004));
 
 		// 3. ה-SPOTLIGHT המרכזי: צבע ירוק-זרחני עוצמתי (מנוגד לחלוטין לאדום ולכחול)
 		// מיקמנו אותו בנקודה מוגבהת וקרובה מאוד (X=-30, Y=50, Z=-50)
@@ -122,9 +124,14 @@ public class MultipleLightsTests {
 		// -1)).
 		// המרחק הקרוב והזווית החדה יגרמו לאור הירוק להופיע כ"כתם חרוט" (Cone) מוגדר,
 		// שדועך באופן מעגלי מובהק ויוצר הפרדה מוחלטת של ספוט!
-		_scene2.lights.add(new SpotLight(new Color(0, 800, 0), new Point(-30, 50, -50), new Vector(1, -1, -1))
+//		_scene2.lights.add(new SpotLight(new Color(0, 0, 800), new Point(-30, 50, -50), new Vector(-1, -1, -1.5))
+//				.setKl(0.003).setKQ(0.0005));
+
+		_scene2.lights.add(new DirectionalLight(new Color(0, 0, 250), new Vector(-1, -1, -0.8)));
+		_scene2.lights.add(new PointLight(new Color(400, 0, 0), new Point(60, -50, -130)).setKl(0.002).setKQ(0.0004));
+		_scene2.lights.add(new SpotLight(new Color(0, 800, 0), new Point(50, -30, -100), new Vector(-0.2, -1, -1.5))
 				.setKl(0.003).setKQ(0.0005));
 
-		_camera2.setResolution(RESOLUTION, RESOLUTION).build().renderImage().writeToImage("trianglesMultipleLights");
+		_camera2.setResolution(RESOLUTION, RESOLUTION).build().renderImage().writeToImage("trianglesMultipleLights3");
 	}
 }
