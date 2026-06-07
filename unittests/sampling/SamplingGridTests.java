@@ -35,4 +35,5 @@ public class SamplingGridTests {
 			assertTrue(Math.abs(p.y) == 0.25, "Y coordinate should be either -0.25 or 0.25");
 		}
 	}
+
 }

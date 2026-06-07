@@ -223,16 +223,54 @@ public class Camera implements Cloneable {
 		return this;
 	}
 
-	/**
-	 * calculate and set color to specific pixel
+	/*
+	 * /** calculate and set color to specific pixel
 	 * 
 	 * @param xIndex - column index
+	 * 
 	 * @param yIndex - row index
 	 */
+	/*
+	 * private void castRay(int xIndex, int yIndex) { Ray r = constructRay(xIndex,
+	 * yIndex); Color c = _rayTracer.traceRay(r); _imageWriter.writePixel(xIndex,
+	 * yIndex, c); }
+	 */
+
+	/**
+	 * Calculates and sets the color for a specific pixel. Automatically switches
+	 * between a single ray and a super-sampling beam * @param xIndex - column index
+	 * (horizontal axis, matches 'i' in renderImage/printGrid)
+	 * 
+	 * @param yIndex - row index (vertical axis, matches 'j' in
+	 *               renderImage/printGrid)
+	 */
 	private void castRay(int xIndex, int yIndex) {
-		Ray r = constructRay(xIndex, yIndex);
-		Color c = _rayTracer.traceRay(r);
-		_imageWriter.writePixel(xIndex, yIndex, c);
+		Color pixelColor;
+
+		// Check if the dynamic super-sampling feature is enabled
+		if (_useSuperSampling) {
+			// 1. Generate the completely dynamic beam of rays for this pixel using xIndex
+			// and yIndex
+			List<Ray> rayBeam = constructRayBeam(xIndex, yIndex);
+
+			// 2. Accumulate the color returned from tracing each individual ray in the beam
+			Color totalColor = Color.BLACK;
+			for (Ray ray : rayBeam) {
+				totalColor = totalColor.add(_rayTracer.traceRay(ray));
+			}
+
+			// 3. Average the color by dividing the accumulated sum by the total number of
+			// rays
+			pixelColor = totalColor.reduce(rayBeam.size());
+		} else {
+			// Fallback: Construct and trace a single central ray if super-sampling is
+			// disabled
+			Ray singleRay = constructRay(xIndex, yIndex);
+			pixelColor = _rayTracer.traceRay(singleRay);
+		}
+
+		// Write the final calculated color to the image writer
+		_imageWriter.writePixel(xIndex, yIndex, pixelColor);
 	}
 
 	/**
@@ -369,7 +407,7 @@ public class Camera implements Cloneable {
 		 * @param type
 		 * @return
 		 */
-		Builder setRayTracer(Scene scene, RayTracerType type) {
+		public Builder setRayTracer(Scene scene, RayTracerType type) {
 			if (type == RayTracerType.SIMPLE)
 				this._camera._rayTracer = new SimpleRayTracer(scene);
 			else

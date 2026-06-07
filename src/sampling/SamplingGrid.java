@@ -31,6 +31,17 @@ public class SamplingGrid {
 	private final Random random = new Random();
 
 	/**
+	 * Overloaded method for backward compatibility with existing tests. Generates a
+	 * regular square grid of points by default. * @param nRows Number of rows
+	 * 
+	 * @param nCols Number of columns
+	 * @return List of normalized 2D coordinates
+	 */
+	public List<Point2D> generateGridPoints(int nRows, int nCols) {
+		return generateGridPoints(nRows, nCols, AreaShape.SQUARE, SamplingPattern.REGULAR);
+	}
+
+	/**
 	 * Generates normalized 2D points inside a target area based on shape and
 	 * pattern.
 	 * 

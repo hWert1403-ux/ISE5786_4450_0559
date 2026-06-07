@@ -66,7 +66,9 @@ class ShadowTests {
 	private void renderSceneToImage(String pictName, boolean multiThreading, boolean grid) {
 		// if (multiThreading)
 		// _cameraBuilder.setMultithreading(-1).setDebugPrint(1);
-		var camera = _cameraBuilder.build().renderImage();
+		var camera = _cameraBuilder
+//				.setSuperSampling(true, 9, 9, 1.0, SamplingGrid.AreaShape.CIRCLE, SamplingGrid.SamplingPattern.JITTERED)
+				.build().renderImage();
 		if (grid)
 			camera.printGrid(30, new Color(RED));
 		camera.writeToImage(pictName);
