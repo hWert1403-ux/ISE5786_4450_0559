@@ -2,12 +2,16 @@ package renderer;
 
 import static primitives.Util.isZero;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.MissingResourceException;
 
 import primitives.Color;
 import primitives.Point;
+import primitives.Point2D;
 import primitives.Ray;
 import primitives.Vector;
+import sampling.SamplingGrid;
 import scene.Scene;
 
 /**
@@ -37,9 +41,51 @@ public class Camera implements Cloneable {
 
 	/** to write picture file */
 	ImageWriter _imageWriter;
-	
+
 	/** to calculate color */
 	RayTracerBase _rayTracer;
+
+	/**
+	 * Toggle switch to enable or disable the Anti-Aliasing Super-Sampling feature.
+	 */
+	private boolean _useSuperSampling = false;
+
+	/**
+	 * The number of horizontal sub-divisions (rows) inside a single pixel's
+	 * sampling grid.
+	 */
+	private int _superSamplingRows = 1;
+
+	/**
+	 * The number of vertical sub-divisions (columns) inside a single pixel's
+	 * sampling grid.
+	 */
+	private int _superSamplingCols = 1;
+
+	/**
+	 * Scale factor determining the size of the target sampling area relative to the
+	 * pixel's boundaries.
+	 * 
+	 * A value of 1.0 covers 100% of the pixel. Adjusting this scale allows
+	 * narrowing or widening the ray beam, providing flexibility for other
+	 * super-sampling extensions (e.g., depth of field or soft shadows).
+	 */
+	private double _sampleAreaScale = 1.0;
+
+	/**
+	 * Defines the geometric boundary shape of the sampling zone (SQUARE or CIRCLE).
+	 */
+	private SamplingGrid.AreaShape _samplingShape = SamplingGrid.AreaShape.SQUARE;
+
+	/**
+	 * Specifies the spatial distribution strategy of the sample points (REGULAR
+	 * grid vs JITTERED random). REGULAR aligns points perfectly at sub-pixel
+	 * centers, while JITTERED introduces stochastic random.
+	 */
+	private SamplingGrid.SamplingPattern _samplingPattern = SamplingGrid.SamplingPattern.REGULAR;
+
+	/** Shared instance to reuse the grid and avoid stack-overflow */
+	private final SamplingGrid _samplingGrid = new SamplingGrid();
 
 	/**
 	 * Private default constructor for the Camera class. Used exclusively by the
@@ -96,7 +142,73 @@ public class Camera implements Cloneable {
 		// Return the ray (the Ray constructor or its internal logic should ensure
 		// normalization)
 		return new Ray(_p0, direction);
+	}
 
+	/**
+	 * Why in this class: According to RDD principle, the camera is the only
+	 * component in the system that holds the geometric information of the image
+	 * plane. Therefore, it is the one that must translate the theoretical 2D
+	 * displacements into real positions in 3D space.
+	 */
+	/**
+	 * Constructs a beam of rays through a specific pixel based on fully dynamic
+	 * configuration. * @param xIndex Column index (j) - horizontal pixel index
+	 * 
+	 * @param yIndex Row index (i) - vertical pixel index
+	 * @return List of rays forming the sampling beam through the pixel
+	 */
+	public List<Ray> constructRayBeam(int xIndex, int yIndex) {
+		List<Ray> rayBeam = new ArrayList<>();
+
+		// 1. Find the center point of the current pixel (Reusing your exact logic)
+		Point pixelCenter = _vpCenter;
+		double deltaX = (xIndex - _nX / 2.0) * _pixelWidth + _pixelWidth / 2.0;
+		double deltaY = -((yIndex - _nY / 2.0) * _pixelHeight + _pixelHeight / 2.0);
+
+		if (!isZero(deltaX)) {
+			pixelCenter = pixelCenter.add(_vRight.scale(deltaX));
+		}
+		if (!isZero(deltaY)) {
+			pixelCenter = pixelCenter.add(_vUp.scale(deltaY));
+		}
+
+		// 2. Fetch the 2D configuration-driven points from our reusable grid instance
+		List<Point2D> gridPoints = _samplingGrid.generateGridPoints(_superSamplingRows, _superSamplingCols,
+				_samplingShape, _samplingPattern);
+
+		// 3. Transform each 2D offset into a 3D ray scaled by the configured size
+		// factor
+		for (primitives.Point2D wp : gridPoints) {
+			Point samplePoint = pixelCenter;
+
+			// Scale the pixel dimensions by the custom sampleAreaScale setting
+			double currentWidth = _pixelWidth * _sampleAreaScale;
+			double currentHeight = _pixelHeight * _sampleAreaScale;
+
+			// Move along _vRight vector
+			if (!isZero(wp.x)) {
+				samplePoint = samplePoint.add(_vRight.scale(wp.x * currentWidth));
+			}
+
+			// Move along _vUp vector
+			if (!isZero(wp.y)) {
+				samplePoint = samplePoint.add(_vUp.scale(wp.y * currentHeight));
+			}
+
+			// Create the final sample ray
+			Vector direction = samplePoint.subtract(_p0);
+			rayBeam.add(new Ray(_p0, direction));
+		}
+
+		return rayBeam;
+	}
+
+	/**
+	 * Checks whether super-sampling is enabled for this camera. * @return true if
+	 * enabled, false otherwise
+	 */
+	public boolean isSuperSamplingEnabled() {
+		return _useSuperSampling;
 	}
 
 	/**
@@ -262,6 +374,31 @@ public class Camera implements Cloneable {
 				this._camera._rayTracer = new SimpleRayTracer(scene);
 			else
 				throw new IllegalArgumentException("Unsupported Ray Tracer Type: " + type);
+			return this;
+		}
+
+		/**
+		 * Configures comprehensive super-sampling parameters for the camera. * @param
+		 * enable true to turn on anti-aliasing
+		 * 
+		 * @param rows    number of sampling rows
+		 * @param cols    number of sampling columns
+		 * @param scale   scale factor of the area size (typically 1.0)
+		 * @param shape   SQUARE or CIRCLE geometry filter
+		 * @param pattern REGULAR grid alignment or JITTERED random scattering
+		 * @return the Builder instance
+		 */
+		public Builder setSuperSampling(boolean enable, int rows, int cols, double scale, SamplingGrid.AreaShape shape,
+				SamplingGrid.SamplingPattern pattern) {
+			if (rows <= 0 || cols <= 0 || scale <= 0) {
+				throw new IllegalArgumentException("Rows, columns and scale factor must be positive values.");
+			}
+			this._camera._useSuperSampling = enable;
+			this._camera._superSamplingRows = rows;
+			this._camera._superSamplingCols = cols;
+			this._camera._sampleAreaScale = scale;
+			this._camera._samplingShape = shape;
+			this._camera._samplingPattern = pattern;
 			return this;
 		}
 
