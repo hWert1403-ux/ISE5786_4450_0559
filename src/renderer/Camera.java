@@ -212,15 +212,64 @@ public class Camera implements Cloneable {
 		return _useSuperSampling;
 	}
 
+//	/**
+//	 * calculate and set colors to ALL pixel
+//	 * 
+//	 * @return the Camera instance
+//	 */
+//	public Camera renderImage() {
+//		for (int i = 0; i < _nX; i++)
+//			for (int j = 0; j < _nY; j++)
+//				castRay(i, j);
+//		return this;
+//	}
 	/**
-	 * calculate and set colors to ALL pixel
-	 * 
-	 * @return the Camera instance
+	 * Calculates and sets colors to ALL pixels using multi-threading capability.
+	 * Fully compliant with the course's official PixelManager infrastructure.
+	 * * @return the Camera instance
 	 */
 	public Camera renderImage() {
-		for (int i = 0; i < _nX; i++)
-			for (int j = 0; j < _nY; j++)
-				castRay(i, j);
+		// 1. קביעת מספר הנימים לעבודה (למשל 4 נימים, או דינמי לפי ליבות המעבד)
+		int threadsCount = Runtime.getRuntime().availableProcessors();
+
+		// 2. אתחול ה-PixelManager עם רזולוציית המסך ומספר הנימים
+		PixelManager pixelManager = new PixelManager(_nX, _nY, threadsCount);
+
+		// 3. יצירת רשימה לניהול הנימים (Threads)
+		List<Thread> threads = new ArrayList<>();
+
+		// 4. בניית והגדרת הנימים
+		for (int t = 0; t < threadsCount; t++) {
+			threads.add(new Thread(() -> {
+				PixelManager.Pixel pixel;
+
+				// כל נים מושך בצורה בטוחה (Thread-Safe) את הפיקסל הבא שפנוי לעבודה
+				while ((pixel = pixelManager.nextPixel()) != null) {
+					// קריאה למתודת castRay הקיימת שלך (col הוא xIndex, row הוא yIndex)
+					castRay(pixel.col(), pixel.row());
+
+					// סימון ל-PixelManager שהפיקסל הנוכחי טופל בהצלחה
+					pixelManager.pixelDone();
+				}
+			}));
+		}
+
+		// 5. הפעלת כל הנימים במקביל (Concurrent execution)
+		for (Thread thread : threads) {
+			thread.start();
+		}
+
+		// 6. המתנה (Join) - המצלמה מחכה שכל הנימים יסיימו לחלוטין את עבודתם
+		// לפני שהיא מאפשרת להמשיך הלאה (מונע כתיבת קובץ תמונה חלקי או ריק)
+		try {
+			for (Thread thread : threads) {
+				thread.join();
+			}
+		} catch (InterruptedException e) {
+			// שומר על סטטוס ה-interrupt של הנים הנוכחי במידה ונפסק באמצע
+			Thread.currentThread().interrupt();
+		}
+
 		return this;
 	}
 
@@ -582,5 +631,6 @@ public class Camera implements Cloneable {
 
 			return this;
 		}
+
 	}
 }
