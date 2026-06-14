@@ -85,7 +85,7 @@ class SuperSamplingTests {
 
 		long startTime = System.currentTimeMillis();
 
-		builder.build().renderImage().writeToImage("superSamplingDisabled_Final");
+		builder.build().renderImage().writeToImage("superSamplingDisabled-circle,regular");
 
 		long endTime = System.currentTimeMillis();
 		System.out.println(">> Render Time (Anti-Aliasing DISABLED): " + (endTime - startTime) + " ms");
@@ -103,7 +103,7 @@ class SuperSamplingTests {
 
 		long startTime = System.currentTimeMillis();
 
-		builder.build().renderImage().writeToImage("superSamplingRegularEnabled_Final");
+		builder.build().renderImage().writeToImage("superSamplingRegularEnabled-circle,regular");
 
 		long endTime = System.currentTimeMillis();
 		System.out.println(">> Render Time (Anti-Aliasing REGULAR 9x9 - Cached): " + (endTime - startTime) + " ms");
@@ -121,7 +121,7 @@ class SuperSamplingTests {
 
 		long startTime = System.currentTimeMillis();
 
-		builder.build().renderImage().writeToImage("superSamplingJitteredEnabled_Final");
+		builder.build().renderImage().writeToImage("superSamplingJitteredEnabled- circle,jittered");
 
 		long endTime = System.currentTimeMillis();
 		System.out.println(">> Render Time (Anti-Aliasing JITTERED 9x9): " + (endTime - startTime) + " ms");
