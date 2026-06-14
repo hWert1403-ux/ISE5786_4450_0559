@@ -3,14 +3,17 @@ package renderer;
 import static primitives.Util.isZero;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.MissingResourceException;
+import java.util.stream.IntStream;
 
 import primitives.Color;
 import primitives.Point;
 import primitives.Point2D;
 import primitives.Ray;
 import primitives.Vector;
+import renderer.PixelManager.Pixel;
 import sampling.Blackboard;
 import sampling.SamplingGrid;
 import scene.Scene;
@@ -51,6 +54,14 @@ public class Camera implements Cloneable {
 	 */
 	private boolean _useSuperSampling = false;
 
+	/** Toggle switch to enable or disable Adaptive Super-Sampling */
+	private boolean _useAdaptiveSuperSampling = false;
+
+	/** Maximum recursion depth for adaptive pixel splitting */
+	private int _maxAdaptiveDepth = 3;
+
+	/** Color sensitivity threshold for adaptive sampling */
+	private double _colorTolerance = 0.1;
 	/**
 	 * The number of horizontal sub-divisions (rows) inside a single pixel's
 	 * sampling grid.
@@ -89,6 +100,17 @@ public class Camera implements Cloneable {
 	 * pixel grid (regular or jittered)
 	 */
 	private SamplingGrid _samplingGrid;
+
+	/**
+	 * … -2 auto raw threads, -1 parallel stream, 0 no threads, 1+ raw threads count
+	 */
+	private int _threadsCount = 0;
+
+	private static final int SPARE_THREADS = 2; // Spare threads if trying to use all the cores
+
+	private double _printInterval = 0; // printing progress percentage interval (0 – no printing)
+
+	private PixelManager _pixelManager; // pixel manager object
 
 	/**
 	 * Private default constructor for the Camera class. Used exclusively by the
@@ -228,7 +250,7 @@ public class Camera implements Cloneable {
 	 * Fully compliant with the course's official PixelManager infrastructure.
 	 * * @return the Camera instance
 	 */
-	public Camera renderImage() {
+	public Camera renderImageNoThreads() {
 		// 1. קביעת מספר הנימים לעבודה (למשל 4 נימים, או דינמי לפי ליבות המעבד)
 		int threadsCount = Runtime.getRuntime().availableProcessors();
 
@@ -270,6 +292,46 @@ public class Camera implements Cloneable {
 			Thread.currentThread().interrupt();
 		}
 
+		return this;
+	}
+
+	/**
+	 * Calculates and sets colors to ALL pixels using multi-threading capability.
+	 * Routing method based on the official course presentation. * @return the
+	 * Camera instance
+	 */
+	public Camera renderImage() {
+		_pixelManager = new PixelManager(_nY, _nX, _printInterval);
+		return switch (_threadsCount) {
+		case 0 -> renderImageNoThreads();
+		case -1 -> renderImageStream();
+		default -> renderImageRawThreads();
+		};
+	}
+
+	private Camera renderImageRawThreads() {
+		var threads = new LinkedList<Thread>();
+		var count = _threadsCount;
+		while (count-- > 0)
+			threads.add(new Thread(() -> {
+				Pixel pixel;
+				while ((pixel = _pixelManager.nextPixel()) != null)
+					castRay(pixel.col(), pixel.row());
+			}));
+		for (var thread : threads)
+			thread.start();
+		try {
+			for (var thread : threads)
+				thread.join();
+		} catch (InterruptedException _) {
+		}
+		return this;
+
+	}
+
+	public Camera renderImageStream() {
+		IntStream.range(0, _nY).parallel()
+				.forEach(yIndex -> IntStream.range(0, _nX).parallel().forEach(xIndex -> castRay(xIndex, yIndex)));
 		return this;
 	}
 
@@ -321,6 +383,8 @@ public class Camera implements Cloneable {
 
 		// Write the final calculated color to the image writer
 		_imageWriter.writePixel(xIndex, yIndex, pixelColor);
+
+		_pixelManager.pixelDone();
 	}
 
 	/**
@@ -488,6 +552,43 @@ public class Camera implements Cloneable {
 			this._camera._samplingShape = shape;
 			this._camera._samplingPattern = pattern;
 			this._camera._samplingGrid = new SamplingGrid();
+			return this;
+		}
+
+		public Builder setMultithreading(int threads) {
+			if (threads < -2)
+				throw new IllegalArgumentException("Multithreading must be -2 or higher");
+			if (threads >= -1)
+				_camera._threadsCount = threads;
+			else { // == -2
+				int cores = Runtime.getRuntime().availableProcessors() - SPARE_THREADS;
+				_camera._threadsCount = cores <= 2 ? 1 : cores;
+			}
+			return this;
+		}
+
+		public Builder setDebugPrint(double interval) {
+			if (interval < 0)
+				throw new IllegalArgumentException("Interval value must be non-negative");
+			_camera._printInterval = interval;
+			return this;
+		}
+
+		/**
+		 * Configures Adaptive Super-Sampling parameters. * @param enable true to turn
+		 * on adaptive sampling
+		 * 
+		 * @param maxDepth  maximum recursion depth (e.g., 3 or 4)
+		 * @param tolerance color sensitivity threshold (e.g., 0.1 or 0.05)
+		 * @return the Builder instance
+		 */
+		public Builder setAdaptiveSuperSampling(boolean enable, int maxDepth, double tolerance) {
+			if (maxDepth < 0 || tolerance < 0) {
+				throw new IllegalArgumentException("Depth and tolerance must be non-negative values.");
+			}
+			this._camera._useAdaptiveSuperSampling = enable;
+			this._camera._maxAdaptiveDepth = maxDepth;
+			this._camera._colorTolerance = tolerance;
 			return this;
 		}
 
