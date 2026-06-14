@@ -11,6 +11,7 @@ import primitives.Point;
 import primitives.Point2D;
 import primitives.Ray;
 import primitives.Vector;
+import sampling.Blackboard;
 import sampling.SamplingGrid;
 import scene.Scene;
 
@@ -84,8 +85,10 @@ public class Camera implements Cloneable {
 	 */
 	private SamplingGrid.SamplingPattern _samplingPattern = SamplingGrid.SamplingPattern.REGULAR;
 
-	/** Shared instance to reuse the grid and avoid stack-overflow */
-	private final SamplingGrid _samplingGrid = new SamplingGrid();
+	/*
+	 * pixel grid (regular or jittered)
+	 */
+	private SamplingGrid _samplingGrid;
 
 	/**
 	 * Private default constructor for the Camera class. Used exclusively by the
@@ -145,22 +148,23 @@ public class Camera implements Cloneable {
 	}
 
 	/**
-	 * Why in this class: According to RDD principle, the camera is the only
-	 * component in the system that holds the geometric information of the image
-	 * plane. Therefore, it is the one that must translate the theoretical 2D
-	 * displacements into real positions in 3D space.
-	 */
-	/**
-	 * Constructs a beam of rays through a specific pixel based on fully dynamic
-	 * configuration. * @param xIndex Column index (j) - horizontal pixel index
+	 * Constructs a beam of rays through a specific pixel. Decouples spatial mapping
+	 * and geometric offset generation from the camera by leveraging the Blackboard
+	 * and SamplingGrid infrastructure components. * Why in this class? According to
+	 * the RDD principle, the camera is the only component that holds the geometric
+	 * information of the view plane. Therefore, it is solely responsible for
+	 * translating pixel indices into a physical 3D center position before
+	 * delegating sample placement. * @param xIndex Column index (j) - the
+	 * horizontal pixel coordinate
 	 * 
-	 * @param yIndex Row index (i) - vertical pixel index
-	 * @return List of rays forming the sampling beam through the pixel
+	 * @param yIndex Row index (i) - the vertical pixel coordinate
+	 * @return List of rays forming the sampling beam through the specified pixel
 	 */
 	public List<Ray> constructRayBeam(int xIndex, int yIndex) {
 		List<Ray> rayBeam = new ArrayList<>();
 
-		// 1. Find the center point of the current pixel (Reusing your exact logic)
+		// 1. Calculate the center point of the target pixel (Camera's geometric
+		// responsibility)
 		Point pixelCenter = _vpCenter;
 		double deltaX = (xIndex - _nX / 2.0) * _pixelWidth + _pixelWidth / 2.0;
 		double deltaY = -((yIndex - _nY / 2.0) * _pixelHeight + _pixelHeight / 2.0);
@@ -172,30 +176,27 @@ public class Camera implements Cloneable {
 			pixelCenter = pixelCenter.add(_vUp.scale(deltaY));
 		}
 
-		// 2. Fetch the 2D configuration-driven points from our reusable grid instance
-		List<Point2D> gridPoints = _samplingGrid.generateGridPoints(_superSamplingRows, _superSamplingCols,
+		// 2. Compute the physical target dimensions scaled by the custom sample area
+		// factor
+		double targetWidth = _pixelWidth * _sampleAreaScale;
+		double targetHeight = _pixelHeight * _sampleAreaScale;
+
+		// 3. Create a local Blackboard context for this specific pixel (Complete
+		// separation of concerns)
+		Blackboard blackboard = new Blackboard(pixelCenter, _vUp, _vRight, targetWidth, targetHeight);
+
+		// 4. Fetch normalized 2D offsets from the infrastructure grid (Leverages
+		// internal performance cache)
+		List<Point2D> gridPoints2D = _samplingGrid.generateGridPoints(_superSamplingRows, _superSamplingCols,
 				_samplingShape, _samplingPattern);
 
-		// 3. Transform each 2D offset into a 3D ray scaled by the configured size
-		// factor
-		for (primitives.Point2D wp : gridPoints) {
-			Point samplePoint = pixelCenter;
+		// 5. Transform the normalized 2D offsets into physical 3D scene coordinates via
+		// the Blackboard
+		List<Point> points3D = blackboard.convert2DTo3D(gridPoints2D);
 
-			// Scale the pixel dimensions by the custom sampleAreaScale setting
-			double currentWidth = _pixelWidth * _sampleAreaScale;
-			double currentHeight = _pixelHeight * _sampleAreaScale;
-
-			// Move along _vRight vector
-			if (!isZero(wp.x)) {
-				samplePoint = samplePoint.add(_vRight.scale(wp.x * currentWidth));
-			}
-
-			// Move along _vUp vector
-			if (!isZero(wp.y)) {
-				samplePoint = samplePoint.add(_vUp.scale(wp.y * currentHeight));
-			}
-
-			// Create the final sample ray
+		// 6. Construct sample rays originating from the camera lens center (p0) towards
+		// each 3D point
+		for (Point samplePoint : points3D) {
 			Vector direction = samplePoint.subtract(_p0);
 			rayBeam.add(new Ray(_p0, direction));
 		}
@@ -437,6 +438,7 @@ public class Camera implements Cloneable {
 			this._camera._sampleAreaScale = scale;
 			this._camera._samplingShape = shape;
 			this._camera._samplingPattern = pattern;
+			this._camera._samplingGrid = new SamplingGrid();
 			return this;
 		}
 
