@@ -4,6 +4,7 @@ import geometries.api.Intersectable.Intersection;
 import lighting.LightSource;
 import primitives.Color;
 import primitives.Double3;
+import primitives.Point;
 import primitives.Ray;
 import primitives.Util;
 import primitives.Vector;
@@ -33,6 +34,11 @@ class SimpleRayTracer extends RayTracerBase {
 	Color traceRay(Ray ray) {
 		Intersection intersection = findClosestIntersection(ray);
 		return intersection == null ? _scene._background : calcColor(intersection, ray.direction());
+	}
+
+	@Override
+	Color traceRayToPoint(Point p, Point origin) {
+		return traceRay(new Ray(origin, p.subtract(origin)));
 	}
 
 	/**
@@ -263,4 +269,5 @@ class SimpleRayTracer extends RayTracerBase {
 		var intersections = _scene._geometries.calcIntersections(ray);
 		return intersections == null ? null : ray.findClosestIntersection(intersections);
 	}
+
 }

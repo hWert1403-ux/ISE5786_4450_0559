@@ -58,10 +58,10 @@ public class Camera implements Cloneable {
 	private boolean _useAdaptiveSuperSampling = false;
 
 	/** Maximum recursion depth for adaptive pixel splitting */
-	private int _maxAdaptiveDepth = 3;
+	private int _maxAdaptiveDepth = 5;
 
 	/** Color sensitivity threshold for adaptive sampling */
-	private double _colorTolerance = 0.1;
+	private double _colorTolerance = 0.01;
 	/**
 	 * The number of horizontal sub-divisions (rows) inside a single pixel's
 	 * sampling grid.
@@ -234,71 +234,66 @@ public class Camera implements Cloneable {
 		return _useSuperSampling;
 	}
 
-//	/**
-//	 * calculate and set colors to ALL pixel
-//	 * 
-//	 * @return the Camera instance
-//	 */
-//	public Camera renderImage() {
-//		for (int i = 0; i < _nX; i++)
-//			for (int j = 0; j < _nY; j++)
-//				castRay(i, j);
-//		return this;
-//	}
 	/**
-	 * Calculates and sets colors to ALL pixels using multi-threading capability.
-	 * Fully compliant with the course's official PixelManager infrastructure.
-	 * * @return the Camera instance
+	 * calculate and set colors to ALL pixel
+	 * 
+	 * @return the Camera instance
 	 */
 	public Camera renderImageNoThreads() {
-		// 1. קביעת מספר הנימים לעבודה (למשל 4 נימים, או דינמי לפי ליבות המעבד)
-		int threadsCount = Runtime.getRuntime().availableProcessors();
-
-		// 2. אתחול ה-PixelManager עם רזולוציית המסך ומספר הנימים
-		PixelManager pixelManager = new PixelManager(_nX, _nY, threadsCount);
-
-		// 3. יצירת רשימה לניהול הנימים (Threads)
-		List<Thread> threads = new ArrayList<>();
-
-		// 4. בניית והגדרת הנימים
-		for (int t = 0; t < threadsCount; t++) {
-			threads.add(new Thread(() -> {
-				PixelManager.Pixel pixel;
-
-				// כל נים מושך בצורה בטוחה (Thread-Safe) את הפיקסל הבא שפנוי לעבודה
-				while ((pixel = pixelManager.nextPixel()) != null) {
-					// קריאה למתודת castRay הקיימת שלך (col הוא xIndex, row הוא yIndex)
-					castRay(pixel.col(), pixel.row());
-
-					// סימון ל-PixelManager שהפיקסל הנוכחי טופל בהצלחה
-					pixelManager.pixelDone();
-				}
-			}));
-		}
-
-		// 5. הפעלת כל הנימים במקביל (Concurrent execution)
-		for (Thread thread : threads) {
-			thread.start();
-		}
-
-		// 6. המתנה (Join) - המצלמה מחכה שכל הנימים יסיימו לחלוטין את עבודתם
-		// לפני שהיא מאפשרת להמשיך הלאה (מונע כתיבת קובץ תמונה חלקי או ריק)
-		try {
-			for (Thread thread : threads) {
-				thread.join();
-			}
-		} catch (InterruptedException e) {
-			// שומר על סטטוס ה-interrupt של הנים הנוכחי במידה ונפסק באמצע
-			Thread.currentThread().interrupt();
-		}
-
+		for (int i = 0; i < _nX; i++)
+			for (int j = 0; j < _nY; j++)
+				castRay(i, j);
 		return this;
 	}
 
+//	/**
+//	 * Calculates and sets colors to ALL pixels using multi-threading capability.
+//	 * Fully compliant with the course's official PixelManager infrastructure.
+//	 * * @return the Camera instance
+//	 */
+//	public Camera renderImageNoThreads() {
+//		// 1. קביעת מספר הנימים לעבודה (למשל 4 נימים, או דינמי לפי ליבות המעבד)
+//		int threadsCount = Runtime.getRuntime().availableProcessors();
+//
+//		// 3. יצירת רשימה לניהול הנימים (Threads)
+//		List<Thread> threads = new ArrayList<>();
+//
+//		// 4. בניית והגדרת הנימים
+//		for (int t = 0; t < threadsCount; t++) {
+//			threads.add(new Thread(() -> {
+//				PixelManager.Pixel pixel;
+//
+//				// כל נים מושך בצורה בטוחה (Thread-Safe) את הפיקסל הבא שפנוי לעבודה
+//				while ((pixel = _pixelManager.nextPixel()) != null) {
+//					// קריאה למתודת castRay הקיימת שלך (col הוא xIndex, row הוא yIndex)
+//					castRay(pixel.col(), pixel.row());
+//				}
+//			}));
+//		}
+//
+//		// 5. הפעלת כל הנימים במקביל (Concurrent execution)
+//		for (Thread thread : threads) {
+//			thread.start();
+//		}
+//
+//		// 6. המתנה (Join) - המצלמה מחכה שכל הנימים יסיימו לחלוטין את עבודתם
+//		// לפני שהיא מאפשרת להמשיך הלאה (מונע כתיבת קובץ תמונה חלקי או ריק)
+//		try {
+//			for (Thread thread : threads) {
+//				thread.join();
+//			}
+//		} catch (InterruptedException e) {
+//			// שומר על סטטוס ה-interrupt של הנים הנוכחי במידה ונפסק באמצע
+//			Thread.currentThread().interrupt();
+//		}
+//
+//		return this;
+//	}
+
 	/**
-	 * Calculates and sets colors to ALL pixels using multi-threading capability.
-	 * Routing method based on the official course presentation. * @return the
-	 * Camera instance
+	 * Routing method based on the official course presentation. Calculates and sets
+	 * colors to ALL pixels using multi-threading capability. * @return the Camera
+	 * instance
 	 */
 	public Camera renderImage() {
 		_pixelManager = new PixelManager(_nY, _nX, _printInterval);
@@ -309,6 +304,11 @@ public class Camera implements Cloneable {
 		};
 	}
 
+	/**
+	 * Renders the image by manually creating and managing Java Threads. Each thread
+	 * repeatedly pulls the next available pixel from the pixel manager and casts a
+	 * ray through it until no pixels are left. * @return this Camera object
+	 */
 	private Camera renderImageRawThreads() {
 		var threads = new LinkedList<Thread>();
 		var count = _threadsCount;
@@ -329,6 +329,17 @@ public class Camera implements Cloneable {
 
 	}
 
+	/**
+	 * Renders the image using Java's parallel IntStream API.
+	 * <p>
+	 * This method is synchronous and blocking; it splits the row processing (Y
+	 * axis) across the default ForkJoinPool and will not return until all pixels
+	 * have finished rendering (acting similarly to starting and joining manual
+	 * threads).
+	 * </p>
+	 * Parallelism is applied only to the outer loop to minimize thread-management
+	 * overhead. * @return this Camera object
+	 */
 	public Camera renderImageStream() {
 		IntStream.range(0, _nY).parallel()
 				.forEach(yIndex -> IntStream.range(0, _nX).parallel().forEach(xIndex -> castRay(xIndex, yIndex)));
@@ -350,33 +361,61 @@ public class Camera implements Cloneable {
 
 	/**
 	 * Calculates and sets the color for a specific pixel. Automatically switches
-	 * between a single ray and a super-sampling beam * @param xIndex - column index
-	 * (horizontal axis, matches 'i' in renderImage/printGrid)
+	 * between adaptive super-sampling, regular super-sampling, and a single ray.
+	 * * @param xIndex - column index (horizontal axis)
 	 * 
-	 * @param yIndex - row index (vertical axis, matches 'j' in
-	 *               renderImage/printGrid)
+	 * @param yIndex - row index (vertical axis)
 	 */
 	private void castRay(int xIndex, int yIndex) {
 		Color pixelColor;
 
-		// Check if the dynamic super-sampling feature is enabled
-		if (_useSuperSampling) {
-			// 1. Generate the completely dynamic beam of rays for this pixel using xIndex
-			// and yIndex
+		// 1. Check if Adaptive Super-Sampling is enabled
+		if (_useAdaptiveSuperSampling) {
+			// Calculate the center point of the target pixel
+			Point pixelCenter = _vpCenter;
+			double deltaX = (xIndex - _nX / 2.0) * _pixelWidth + _pixelWidth / 2.0;
+			double deltaY = -((yIndex - _nY / 2.0) * _pixelHeight + _pixelHeight / 2.0);
+
+			if (!isZero(deltaX)) {
+				pixelCenter = pixelCenter.add(_vRight.scale(deltaX));
+			}
+			if (!isZero(deltaY)) {
+				pixelCenter = pixelCenter.add(_vUp.scale(deltaY));
+			}
+
+			// Calculate the 4 extreme corners of the pixel on the View Plane
+			Point pNW = pixelCenter.add(_vRight.scale(-_pixelWidth / 2.0)).add(_vUp.scale(_pixelHeight / 2.0));
+			Point pNE = pixelCenter.add(_vRight.scale(_pixelWidth / 2.0)).add(_vUp.scale(_pixelHeight / 2.0));
+			Point pSW = pixelCenter.add(_vRight.scale(-_pixelWidth / 2.0)).add(_vUp.scale(-_pixelHeight / 2.0));
+			Point pSE = pixelCenter.add(_vRight.scale(_pixelWidth / 2.0)).add(_vUp.scale(-_pixelHeight / 2.0));
+
+			// Trace rays to the 4 corners and find their colors
+			Color cNW = _rayTracer.traceRayToPoint(pNW, _p0);
+			Color cNE = _rayTracer.traceRayToPoint(pNE, _p0);
+			Color cSW = _rayTracer.traceRayToPoint(pSW, _p0);
+			Color cSE = _rayTracer.traceRayToPoint(pSE, _p0);
+
+			// Execute the recursive adaptive super-sampling (start at depth 1)
+			pixelColor = adaptiveSuperSamplingRec(pNW, pNE, pSW, pSE, cNW, cNE, cSW, cSE, 1);
+		}
+		// 2. Check if the dynamic regular super-sampling feature is enabled
+		else if (_useSuperSampling) {
+			// Generate the completely dynamic beam of rays for this pixel using xIndex and
+			// yIndex
 			List<Ray> rayBeam = constructRayBeam(xIndex, yIndex);
 
-			// 2. Accumulate the color returned from tracing each individual ray in the beam
+			// Accumulate the color returned from tracing each individual ray in the beam
 			Color totalColor = Color.BLACK;
 			for (Ray ray : rayBeam) {
 				totalColor = totalColor.add(_rayTracer.traceRay(ray));
 			}
 
-			// 3. Average the color by dividing the accumulated sum by the total number of
-			// rays
+			// Average the color by dividing the accumulated sum by the total number of rays
 			pixelColor = totalColor.reduce(rayBeam.size());
-		} else {
-			// Fallback: Construct and trace a single central ray if super-sampling is
-			// disabled
+		}
+		// 3. Fallback: Construct and trace a single central ray if super-sampling is
+		// disabled
+		else {
 			Ray singleRay = constructRay(xIndex, yIndex);
 			pixelColor = _rayTracer.traceRay(singleRay);
 		}
@@ -385,6 +424,56 @@ public class Camera implements Cloneable {
 		_imageWriter.writePixel(xIndex, yIndex, pixelColor);
 
 		_pixelManager.pixelDone();
+	}
+
+	/**
+	 * Recursive function for Adaptive Super-Sampling. Splits the pixel into 4
+	 * quadrants if the colors at the corners are too different.
+	 */
+	private Color adaptiveSuperSamplingRec(Point pNW, Point pNE, Point pSW, Point pSE, Color cNW, Color cNE, Color cSW,
+			Color cSE, int depth) {
+		// Stop condition 1: Reached max depth OR
+		// Stop condition 2: Colors are similar enough
+		if (depth == _maxAdaptiveDepth || isSimilar(cNW, cNE, cSW, cSE)) {
+			return cNW.add(cNE).add(cSW).add(cSE).reduce(4); // Average of 4 corners
+		}
+
+		// Calculate geometric midpoints (center and edges)
+		Point pTopMid = pNW.getMidPoint(pNE);
+		Point pBottomMid = pSW.getMidPoint(pSE);
+		Point pLeftMid = pNW.getMidPoint(pSW);
+		Point pRightMid = pNE.getMidPoint(pSE);
+		Point pCenter = pNW.getMidPoint(pSE);
+
+		// Trace rays to the new 5 points and find their colors
+		Color cTopMid = _rayTracer.traceRayToPoint(pTopMid, _p0);
+		Color cBottomMid = _rayTracer.traceRayToPoint(pBottomMid, _p0);
+		Color cLeftMid = _rayTracer.traceRayToPoint(pLeftMid, _p0);
+		Color cRightMid = _rayTracer.traceRayToPoint(pRightMid, _p0);
+		Color cCenter = _rayTracer.traceRayToPoint(pCenter, _p0);
+
+		// Recursive calls for each of the 4 sub-quadrants (reuses existing colors to
+		// save performance)
+		Color cNW_quad = adaptiveSuperSamplingRec(pNW, pTopMid, pLeftMid, pCenter, cNW, cTopMid, cLeftMid, cCenter,
+				depth + 1);
+		Color cNE_quad = adaptiveSuperSamplingRec(pTopMid, pNE, pCenter, pRightMid, cTopMid, cNE, cCenter, cRightMid,
+				depth + 1);
+		Color cSW_quad = adaptiveSuperSamplingRec(pLeftMid, pCenter, pSW, pBottomMid, cLeftMid, cCenter, cSW,
+				cBottomMid, depth + 1);
+		Color cSE_quad = adaptiveSuperSamplingRec(pCenter, pRightMid, pBottomMid, pSE, cCenter, cRightMid, cBottomMid,
+				cSE, depth + 1);
+
+		// Merge and return the average of the 4 quadrants
+		return cNW_quad.add(cNE_quad).add(cSW_quad).add(cSE_quad).reduce(4);
+	}
+
+	/**
+	 * compare color similarity c1 to 3 other colors
+	 * 
+	 * @return true if colors are similar using tolerance variable
+	 */
+	private boolean isSimilar(Color c1, Color c2, Color c3, Color c4) {
+		return c1.isSimilar(c2, c3, c4, _colorTolerance);
 	}
 
 	/**
@@ -555,6 +644,16 @@ public class Camera implements Cloneable {
 			return this;
 		}
 
+		/*
+		 * Sets the number of threads for multithreading. * @param threads the number of
+		 * threads to use: <ul> <li>-2: automatically calculates threads based on
+		 * available CPU cores</li> <li>-1: no multithreading (single thread)</li> <li>0
+		 * or higher: uses the exact number of specified threads</li> </ul>
+		 * 
+		 * @return this Builder object
+		 * 
+		 * @throws IllegalArgumentException if threads count is less than -2
+		 */
 		public Builder setMultithreading(int threads) {
 			if (threads < -2)
 				throw new IllegalArgumentException("Multithreading must be -2 or higher");
@@ -567,6 +666,13 @@ public class Camera implements Cloneable {
 			return this;
 		}
 
+		/**
+		 * Sets the time interval for printing debug information. * @param interval the
+		 * time between debug prints (must be 0 or higher)
+		 * 
+		 * @return this Builder object
+		 * @throws IllegalArgumentException if the interval value is negative
+		 */
 		public Builder setDebugPrint(double interval) {
 			if (interval < 0)
 				throw new IllegalArgumentException("Interval value must be non-negative");

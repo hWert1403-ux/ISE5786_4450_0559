@@ -79,6 +79,13 @@ public class Point {
 		return Math.sqrt(distanceSquared(other));
 	}
 
+	/**
+	 * Helper method to find the geometric midpoint between two points.
+	 */
+	public Point getMidPoint(Point p) {
+		return this.add(p.subtract(this).scale(0.5));
+	}
+
 	@Override
 	public String toString() {
 		return "" + _xyz;

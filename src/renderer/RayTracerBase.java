@@ -5,6 +5,7 @@ import static primitives.Util.alignZero;
 import geometries.api.Intersectable.Intersection;
 import lighting.LightSource;
 import primitives.Color;
+import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
 import scene.Scene;
@@ -34,6 +35,12 @@ abstract class RayTracerBase {
 	 * @return The color at the intersection point.
 	 */
 	abstract Color traceRay(Ray ray);
+
+	/**
+	 * Constructs a ray from the camera lens to a specific point and fetches its
+	 * color.
+	 */
+	abstract Color traceRayToPoint(Point p, Point origin);
 
 	/** set date related to intersection */
 	protected boolean preprocessIntersection(Intersection intersection, Vector v) {

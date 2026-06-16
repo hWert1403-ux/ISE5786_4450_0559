@@ -187,6 +187,32 @@ public final class Color {
 	}
 
 	/**
+	 * Helper method: Checks if this color is similar to another color within a
+	 * given tolerance. * @param other The other color to compare with
+	 * 
+	 * @param tolerance The difference threshold (e.g., 0.1)
+	 * @return true if the colors are close enough, false otherwise
+	 */
+	private boolean isCloseTo(Color other, double tolerance) {
+		// Get RGB components as values between 0.0 and 1.0
+		float[] rgb1 = this.getColor().getRGBColorComponents(null);
+		float[] rgb2 = other.getColor().getRGBColorComponents(null);
+
+		// Check if the absolute difference for each channel is less than the tolerance
+		return Math.abs(rgb1[0] - rgb2[0]) < tolerance && Math.abs(rgb1[1] - rgb2[1]) < tolerance
+				&& Math.abs(rgb1[2] - rgb2[2]) < tolerance;
+	}
+
+	/**
+	 * Check if 4 colors are similar enough within the tolerance threshold.
+	 * 
+	 * get 3 colors and compare them to this color
+	 */
+	public boolean isSimilar(Color c2, Color c3, Color c4, double tolorance) {
+		return this.isCloseTo(c2, tolorance) && this.isCloseTo(c3, tolorance) && this.isCloseTo(c4, tolorance);
+	}
+
+	/**
 	 * Returns a hash code based on DELTA-sized quantization of the RGB components.
 	 * <p>
 	 * This implementation exists mainly to satisfy the general requirement that
@@ -214,20 +240,4 @@ public final class Color {
 		return "rgb:" + _rgb;
 	}
 
-	/**
-	 * Checks if this color is similar to another color within a given tolerance.
-	 * * @param other The other color to compare with
-	 * 
-	 * @param tolerance The difference threshold (e.g., 0.1)
-	 * @return true if the colors are close enough, false otherwise
-	 */
-	public boolean isCloseTo(Color other, double tolerance) {
-		// Get RGB components as values between 0.0 and 1.0
-		float[] rgb1 = this.getColor().getRGBColorComponents(null);
-		float[] rgb2 = other.getColor().getRGBColorComponents(null);
-
-		// Check if the absolute difference for each channel is less than the tolerance
-		return Math.abs(rgb1[0] - rgb2[0]) < tolerance && Math.abs(rgb1[1] - rgb2[1]) < tolerance
-				&& Math.abs(rgb1[2] - rgb2[2]) < tolerance;
-	}
 }
