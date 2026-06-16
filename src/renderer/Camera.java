@@ -54,14 +54,6 @@ public class Camera implements Cloneable {
 	 */
 	private boolean _useSuperSampling = false;
 
-	/** Toggle switch to enable or disable Adaptive Super-Sampling */
-	private boolean _useAdaptiveSuperSampling = false;
-
-	/** Maximum recursion depth for adaptive pixel splitting */
-	private int _maxAdaptiveDepth = 5;
-
-	/** Color sensitivity threshold for adaptive sampling */
-	private double _colorTolerance = 0.01;
 	/**
 	 * The number of horizontal sub-divisions (rows) inside a single pixel's
 	 * sampling grid.
@@ -101,16 +93,25 @@ public class Camera implements Cloneable {
 	 */
 	private SamplingGrid _samplingGrid;
 
+	private PixelManager _pixelManager; // pixel manager object
+
 	/**
 	 * … -2 auto raw threads, -1 parallel stream, 0 no threads, 1+ raw threads count
 	 */
 	private int _threadsCount = 0;
 
-	private static final int SPARE_THREADS = 2; // Spare threads if trying to use all the cores
-
 	private double _printInterval = 0; // printing progress percentage interval (0 – no printing)
 
-	private PixelManager _pixelManager; // pixel manager object
+	private static final int SPARE_THREADS = 2; // Spare threads if trying to use all the cores
+
+	/** Toggle switch to enable or disable Adaptive Super-Sampling */
+	private boolean _useAdaptiveSuperSampling = false;
+
+	/** Maximum recursion depth for adaptive pixel splitting */
+	private int _maxAdaptiveDepth = 4;
+
+	/** Color sensitivity threshold for adaptive sampling */
+	private double _colorTolerance = 0.01;
 
 	/**
 	 * Private default constructor for the Camera class. Used exclusively by the
