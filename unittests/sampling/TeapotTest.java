@@ -65,33 +65,33 @@ class TeapotTest {
 		runAndMeasureTeapot(false, true, -2, "teapot3_threads_and_ASS");
 	}
 
-	/**
-	 * Teapot with Multithreading
-	 */
-	void teapot2() {
-		prepareTeapot() //
-				.setMultithreading(-2) // שימוש בהאצת תהליכונים
-				.setSuperSampling(true, 9, 9, 1.0, SamplingGrid.AreaShape.SQUARE, SamplingGrid.SamplingPattern.REGULAR)
-				.build() //
-				.renderImage() //
-				.printGrid(50, new Color(YELLOW)) //
-				.writeToImage("teapot2"); // העברת שם התמונה
-	}
-
-	/**
-	 * Teapot with Adaptive Super Sampling & Multithreading
-	 */
-	void teapot3() {
-		prepareTeapot() //
-				.setMultithreading(-2) //
-				// שימוש מדויק בהגדרות ההאצה לפי הטסט לדוגמה שלך
-				.setSuperSampling(true, 9, 9, 1.0, SamplingGrid.AreaShape.SQUARE, SamplingGrid.SamplingPattern.REGULAR)
-				.setAdaptiveSuperSampling(true, 5, 0.03) //
-				.build() //
-				.renderImage() //
-				.printGrid(50, new Color(YELLOW)) //
-				.writeToImage("teapot3"); // העברת שם התמונה
-	}
+//	/**
+//	 * Teapot with Multithreading
+//	 */
+//	void teapot2() {
+//		prepareTeapot() //
+//				.setMultithreading(-2) // שימוש בהאצת תהליכונים
+//				.setSuperSampling(true, 9, 9, 1.0, SamplingGrid.AreaShape.SQUARE, SamplingGrid.SamplingPattern.REGULAR)
+//				.build() //
+//				.renderImage() //
+//				.printGrid(50, new Color(YELLOW)) //
+//				.writeToImage("teapot2"); // העברת שם התמונה
+//	}
+//
+//	/**
+//	 * Teapot with Adaptive Super Sampling & Multithreading
+//	 */
+//	void teapot3() {
+//		prepareTeapot() //
+//				.setMultithreading(-2) //
+//				// שימוש מדויק בהגדרות ההאצה לפי הטסט לדוגמה שלך
+//				.setSuperSampling(true, 9, 9, 1.0, SamplingGrid.AreaShape.SQUARE, SamplingGrid.SamplingPattern.REGULAR)
+//				.setAdaptiveSuperSampling(true, 5, 0.03) //
+//				.build() //
+//				.renderImage() //
+//				.printGrid(50, new Color(YELLOW)) //
+//				.writeToImage("teapot3"); // העברת שם התמונה
+//	}
 
 	/**
 	 * Prepare data for test that generates a teapot picture * @return camera
@@ -144,7 +144,7 @@ class TeapotTest {
 		if (useASS) {
 			// לפי הלוגיקה שלך, כשמפעילים ASS, מוודאים שהרשת המקורית מוגדרת כראוי
 			builder.setSuperSampling(false, 9, 9, 1.0, SamplingGrid.AreaShape.SQUARE,
-					SamplingGrid.SamplingPattern.REGULAR);
+					SamplingGrid.SamplingPattern.REGULAR); // TODO is false right?
 			builder.setAdaptiveSuperSampling(true, 5, 0.03);
 		} else {
 			builder.setAdaptiveSuperSampling(false, 1, 0.0);
