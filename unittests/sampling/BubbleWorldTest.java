@@ -22,7 +22,7 @@ import renderer.Camera;
 import renderer.RayTracerType;
 import scene.Scene;
 
-public class AirplaneWingTest {
+public class BubbleWorldTest {
 
 	/**
 	 * מתודת עזר סטטית לבניית סצנה כבדה ומורכבת. עומדת בדרישות הפרויקט: מעל 1000
